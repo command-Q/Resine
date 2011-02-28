@@ -1,4 +1,4 @@
-Resine is a highly experimental image scaling library oriented around processing in the frequency domain. The intent is to set up a working public repository despite the early and incomplete state of the project. For a detailed list of immediate considerations, see the roadmap.
+Resine is a highly experimental C library oriented around image processing in the frequency domain. The intent is to set up a working public repository despite the early and incomplete state of the project. For a detailed list of immediate considerations, see the roadmap.
 
 libresine is licensed under the GNU Lesser General Public License version 2. For further information, including conditions of use when linked with FFTW, see the COPYING file.
 
@@ -50,3 +50,5 @@ That said, given an image "img" in png_bytepp/JSAMPIMAGE/rsn_image format, dimen
 
 ###Building
 To build Resine, simply edit the relevant portions of the included makefile. Current build options include whether to build with FFTW support, multithreading, and the floating point precision. 4, 8, and 16 byte floats are supported throughout the lib, and the correct precision FFTW will be linked as well.
+
+The resine commandline application depends on a recent version of [libjpeg](http://www.ijg.org/) and [libpng](http://www.libpng.org/) to read/write images.
