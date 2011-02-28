@@ -160,6 +160,6 @@ void write_jpeg_file(rsn_info info, const char* filename, rsn_image image, int q
 
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
-	free(row_pointer);
+
 	fclose(f);
 }
