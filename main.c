@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 		printf("Resine - Fourier-based image resampling library.\n"
 			   "\t©2010-2011 command-Q.org\n"
 			   "\tVersion %s\n"
-			   "\t%s precision configuration (%ld byte float).\n"
+			   "\t%s precision configuration (%zu byte float).\n"
 #if HAS_FFTW
 			   "\tCompiled with FFTW support.\n"
 #endif

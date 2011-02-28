@@ -113,7 +113,7 @@ void write_png_file(rsn_info info,const char* filename, rsn_image image) {
 
 	if(setjmp(png_jmpbuf(png_ptr)))	abort_("[write_png_file] Error during writing header");
 	int ocsp;
-	if(!(info.channels % 2)) ocsp = info.channels - 2 | PNG_COLOR_MASK_ALPHA;
+	if(!(info.channels % 2)) ocsp = (info.channels - 2) | PNG_COLOR_MASK_ALPHA;
 	else ocsp = info.channels - 1;
 	png_set_IHDR(png_ptr,info_ptr,info.width_s,info.height_s,8,ocsp,PNG_INTERLACE_NONE,PNG_COMPRESSION_TYPE_DEFAULT,PNG_FILTER_TYPE_BASE);
 	
