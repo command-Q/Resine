@@ -80,18 +80,13 @@ rsn_image read_jpeg_file(rsn_infop info,const char* filename) {
 
 	rsn_image image = malloc(sizeof(rsn_line)*info->height);
 
-	rsn_line row_pointer[1];
-	row_pointer[0] = malloc(sizeof(rsn_pel)*info->width*info->channels);
-
 	for(int y = 0; cinfo.output_scanline < info->height; y++) {
 		image[y] = malloc(sizeof(rsn_pel)*info->width*info->channels);	
-		jpeg_read_scanlines(&cinfo,row_pointer,1);
-		memcpy(image[y],row_pointer[0],sizeof(rsn_pel)*info->width*info->channels);
+		jpeg_read_scanlines(&cinfo,&image[y],1);
 	}
 
 	jpeg_finish_decompress(&cinfo);
 	jpeg_destroy_decompress(&cinfo);
-	free(row_pointer[0]);
 	fclose(f);
 
 	return image;
