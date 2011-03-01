@@ -7,7 +7,7 @@ THREADED = 0
 ## SYSTEM SETTINGS ##
 ARCH = X86
 SYS = MACOSX
-CC = clang
+CC = gcc
 AR = ar
 RANLIB = ranlib
 STRIP = strip
@@ -26,7 +26,8 @@ incl_includedir = ${incl_prefix}/include
 
 ## BUILD FLAGS ##
 DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DPRECISION=$(PRECISION) -DTHREADED=$(THREADED)
-CFLAGS = -std=c99 -Wall -Os -I$(incl_includedir) $(DFLAGS)
+CFLAGS = -Os -I$(incl_includedir) $(DFLAGS)
+DBGFLAGS = -O0 -g -Wall
 LDFLAGS = -lm
 LDPROJ = -L. -l$(PROJECT)
 EXELDFLAGS = -L$(incl_libdir) -lpng -ljpeg
@@ -78,8 +79,12 @@ else #linux
 	SOFLAGS = -shared -Wl,-soname,$(DYLIB)
 endif
 
-ifeq ($(CC),gcc)
-	CFLAGS += -ffast-math
+ifeq ($(CC),clang)
+	DBGFLAGS += -std=c99
+	CFLAGS += -std=c99
+else
+	DBGFLAGS += -std=gnu99
+	CFLAGS += -std=gnu99 -ffast-math
 endif
 
 SRCS = lib/util.c lib/dsp.c lib/resine.c
@@ -105,9 +110,9 @@ exe: $(SRCSEXE)
 	$(CC) $(CFLAGS) $(LDPROJ) $(EXELDFLAGS) -o $(EXECUTABLE) $+
 		
 debug: 
-	$(CC) -std=c99 -O0 -g -Wall -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(SOFLAGS) -o $(DYLIB) $(SRCS)
+	$(CC) $(DBGFLAGS) -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(SOFLAGS) -o $(DYLIB) $(SRCS)
 	ln -fs $(DYLIB) $(DYLN)
-	$(CC) -std=c99 -O0 -g -Wall -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(EXELDFLAGS) -o $(EXECUTABLE) $(SRCS) $(SRCSEXE)
+	$(CC) $(DBGFLAGS) -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(EXELDFLAGS) -o $(EXECUTABLE) $(SRCS) $(SRCSEXE)
 
 $(SRCS):
 	$(CC) -c $(CFLAGS)
