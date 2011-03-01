@@ -32,6 +32,6 @@ void  rsn_free(int,void**);
 void  rsn_free_array(int,int,void***);
 
 void print_spectrum(int,int,int,int,rsn_spectrum,const char*);
-void print_image(int L, int M, int N, rsn_image img, const char* file);
+void print_image(int,int,int,rsn_image,const char*);
 
 #endif
