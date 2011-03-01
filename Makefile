@@ -79,7 +79,8 @@ else #linux
 endif
 
 ifeq ($(CC),gcc)
-	CFLAGS += -ffast-math -std=gnu99
+	CC += -std=c99
+	CFLAGS += -ffast-math
 endif
 
 SRCS = lib/util.c lib/dsp.c lib/resine.c
