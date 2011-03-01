@@ -26,7 +26,7 @@ incl_includedir = ${incl_prefix}/include
 
 ## BUILD FLAGS ##
 DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DPRECISION=$(PRECISION) -DTHREADED=$(THREADED)
-CFLAGS = -Wall -Os -I$(incl_includedir) $(DFLAGS)
+CFLAGS = -std=c99 -Wall -Os -I$(incl_includedir) $(DFLAGS)
 LDFLAGS = -lm
 LDPROJ = -L. -l$(PROJECT)
 EXELDFLAGS = -L$(incl_libdir) -lpng -ljpeg
@@ -79,7 +79,6 @@ else #linux
 endif
 
 ifeq ($(CC),gcc)
-	CC += -std=c99
 	CFLAGS += -ffast-math
 endif
 
@@ -106,9 +105,9 @@ exe: $(SRCSEXE)
 	$(CC) $(CFLAGS) $(LDPROJ) $(EXELDFLAGS) -o $(EXECUTABLE) $+
 		
 debug: 
-	$(CC) -O0 -g -Wall -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(SOFLAGS) -o $(DYLIB) $(SRCS)
+	$(CC) -std=c99 -O0 -g -Wall -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(SOFLAGS) -o $(DYLIB) $(SRCS)
 	ln -fs $(DYLIB) $(DYLN)
-	$(CC) -O0 -g -Wall -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(EXELDFLAGS) -o $(EXECUTABLE) $(SRCS) $(SRCSEXE)
+	$(CC) -std=c99 -O0 -g -Wall -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(EXELDFLAGS) -o $(EXECUTABLE) $(SRCS) $(SRCSEXE)
 
 $(SRCS):
 	$(CC) -c $(CFLAGS)
