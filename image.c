@@ -153,13 +153,11 @@ void write_jpeg_file(rsn_info info, const char* filename, rsn_image image, int q
 
 	rsn_line row_pointer[1];
 	for(int y = 0; cinfo.next_scanline < info.height_s; y++) {
-		row_pointer[0] = malloc(sizeof(rsn_pel)*info.width_s*info.channels);	
-		memcpy(row_pointer[0],image[y],sizeof(rsn_pel)*info.width_s*info.channels);
+		row_pointer[0] = image[y];	
 		jpeg_write_scanlines(&cinfo,row_pointer,1);		
 	}
 
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
-
 	fclose(f);
 }
