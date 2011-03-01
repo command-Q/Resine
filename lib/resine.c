@@ -214,7 +214,7 @@ rsn_image resine(rsn_info info, rsn_image image) {
 }
 
 rsn_image resine_data(rsn_info info, rsn_datap data) {
-	stopwatch watch = 0; // shut up clang
+	stopwatch watch = NULL; // shut up clang
 	if(info.config.verbosity) watch = stopwatch_create();
 	
 	rsn_decompose(info,data);

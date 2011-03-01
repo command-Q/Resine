@@ -7,7 +7,7 @@ THREADED = 0
 ## SYSTEM SETTINGS ##
 ARCH = X86
 SYS = MACOSX
-CC = gcc
+CC = clang
 AR = ar
 RANLIB = ranlib
 STRIP = strip

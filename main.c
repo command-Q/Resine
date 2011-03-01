@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 		else if(!strncasecmp(strrchr(outfile,'.'),".png",4)) out_type = RSN_IMGTYPE_PNG;		
 	}
 
-	rsn_image img = 0; // shut up clang
+	rsn_image img = NULL; // shut up clang
 	switch(in_type) {
 		case RSN_IMGTYPE_PNG  : img = read_png_file(&info,infile);	break;
 		case RSN_IMGTYPE_JPEG : img = read_jpeg_file(&info,infile);	break;
