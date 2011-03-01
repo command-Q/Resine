@@ -70,8 +70,7 @@ int main(int argc, char **argv) {
 	float sx = 1.0,sy = 1.0;
 	char *print = NULL, *graph = NULL;
 	
-	rsn_info info;
-	info.config = rsn_defaults();
+	rsn_info info = {rsn_defaults(),0,0,0,0,0};
 		
 	while((c = getopt(argc,argv,"s:x:y:w:h:T:S:G:p:g:vq:")) != -1)
 		switch (c) {
