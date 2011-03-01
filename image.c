@@ -151,11 +151,8 @@ void write_jpeg_file(rsn_info info, const char* filename, rsn_image image, int q
 
 	jpeg_start_compress(&cinfo,TRUE);
 
-	rsn_line row_pointer[1];
-	for(int y = 0; cinfo.next_scanline < info.height_s; y++) {
-		row_pointer[0] = image[y];	
-		jpeg_write_scanlines(&cinfo,row_pointer,1);		
-	}
+	for(int y = 0; cinfo.next_scanline < info.height_s; y++)
+		jpeg_write_scanlines(&cinfo,&image[y],1);		
 
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
