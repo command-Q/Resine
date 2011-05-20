@@ -1,4 +1,4 @@
-libresine (the contents of the lib directory in this distribution) is licensed under the GNU Limited General Public License, version 2.1. See COPYING.LGPL.txt.
+libresine (the contents of the lib directory in this distribution) is licensed under the GNU Lesser General Public License, version 2.1. See COPYING.LGPL.txt.
 
 Sources included in this package but not part of libresine are licensed under the Do What The Fuck You Want To Public License version 2. See COPYING.WTFPL.txt.
 
