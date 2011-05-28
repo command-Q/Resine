@@ -7,8 +7,6 @@ THREADED = 0
 ## SYSTEM SETTINGS ##
 ARCH = X86
 SYS = MACOSX
-RANLIB ?= ranlib
-STRIP ?= strip
 INSTALL ?= install
 
 ## PATHS ##
@@ -144,7 +142,7 @@ install: all
 	ln -fs $(libdir)/$(DYLIB) $(libdir)/$(DYLN)
 	$(INSTALL) -d $(includedir)/$(PROJECT)
 	$(INSTALL) $(HEADERS) resine_config.h $(includedir)/$(PROJECT)
-	$(INSTALL) $(EXECUTABLE) $(bindir)
+	$(INSTALL) -s $(EXECUTABLE) $(bindir)
 ifeq ($(SYS),MACOSX)
 	install_name_tool -id $(libdir)/$(DYLIB) $(libdir)/$(DYLIB)
 	install_name_tool -change @executable_path/$(DYLIB) $(libdir)/$(DYLIB) $(bindir)/$(EXECUTABLE)
