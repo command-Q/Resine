@@ -63,7 +63,7 @@ endif
 ifeq ($(SYS),MACOSX)
 	DYLEXT = dylib
 	DYLIB = lib$(PROJECT).$(VER).$(DYLEXT)
-	SOFLAGS = -dynamiclib -Wl,-install_name,@executable_path/$(DYLIB),-compatibility_version,$(firstword $(subst ., ,$(VER))),-current_version,$(VER)
+	SOFLAGS = -dynamiclib -Wl,-install_name,@executable_path/$(DYLIB),-headerpad_max_install_names,-compatibility_version,$(firstword $(subst ., ,$(VER))),-current_version,$(VER)
 else ifeq ($(SYS),MINGW)
 	DYLEXT = dll
 	SOFLAGS = -Wl,--out-implib,lib$(PROJECT).$(DYLEXT).a -Wl,--enable-auto-image-base
@@ -72,7 +72,7 @@ else ifeq ($(SYS),MINGW)
 else #linux
 	DYLEXT = so
 	DYLIB = lib$(PROJECT).$(DYLEXT).$(VER)
-	SOFLAGS = -shared -Wl,-soname,$(DYLIB)
+	SOFLAGS = -shared -Wl,-soname,lib$(PROJECT).$(DYLEXT).$(firstword $(subst ., ,$(VER)))
 endif
 
 ifeq ($(CC),clang)
@@ -128,6 +128,10 @@ install: all
 	$(INSTALL) -d $(includedir)/$(PROJECT)
 	$(INSTALL) $(HEADERS) $(includedir)/$(PROJECT)
 	$(INSTALL) $(EXECUTABLE) $(bindir)
+ifeq ($(SYS),MACOSX)
+	install_name_tool -id $(libdir)/$(DYLIB) $(libdir)/$(DYLIB)
+	install_name_tool -change @executable_path/$(DYLIB) $(libdir)/$(DYLIB) $(bindir)/$(EXECUTABLE)
+endif
 
 uninstall:
 	rm $(libdir)/$(LIB) $(libdir)/$(DYLIB) $(libdir)/$(DYLN)
