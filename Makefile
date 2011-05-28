@@ -32,7 +32,7 @@ VER = 0.9.2
 
 ## BUILD FLAGS ##
 DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DPRECISION=$(PRECISION) -DTHREADED=$(THREADED)
-_CFLAGS = -Os -I$(incl_includedir) $(DFLAGS)
+_CFLAGS = -Os -I$(incl_includedir)
 _LDFLAGS = -lm
 LDPROJ = -L. -l$(PROJECT)
 EXELDFLAGS = -L$(incl_libdir) -lpng -ljpeg
@@ -41,13 +41,17 @@ ifeq ($(HAS_FFTW),1)
 	_LDFLAGS += -L$(incl_libdir)
 	ifeq ($(PRECISION),SINGLE)
 		_LDFLAGS += -lfftw3f 
+		STATICLDPROJ = $(incl_libdir)/libfftw3f.a 
 	else ifeq ($(PRECISION),QUAD)
 		_LDFLAGS += -lfftw3l
+		STATICLDPROJ = $(incl_libdir)/libfftw3l.a 
 	else 
 		_LDFLAGS += -lfftw3
+		STATICLDPROJ = $(incl_libdir)/libfftw3.a 
 	endif
 	ifeq ($(THREADED),1)
 		_LDFLAGS += -lfftw3_threads
+		STATICLDPROJ += $(incl_libdir)/libfftw3_threads.a 
 	endif
 endif
 ifeq ($(THREADED),1)
@@ -63,23 +67,25 @@ ifeq ($(SYS),MACOSX)
 	DYLEXT = dylib
 	DYLIB = lib$(PROJECT).$(VER).$(DYLEXT)
 	SOFLAGS = -dynamiclib -Wl,-install_name,@executable_path/$(DYLIB),-headerpad_max_install_names,-compatibility_version,$(firstword $(subst ., ,$(VER))),-current_version,$(VER)
-else ifeq ($(SYS),MINGW)
-	DYLEXT = dll
-	SOFLAGS = -Wl,--out-implib,lib$(PROJECT).$(DYLEXT).a -Wl,--enable-auto-image-base
-	DYLIB = lib$(PROJECT)-$(VER).$(DYLEXT)
-	EXEEXT = .exe
-else #linux
-	DYLEXT = so
-	DYLIB = lib$(PROJECT).$(DYLEXT).$(VER)
-	SOFLAGS = -shared -Wl,-soname,lib$(PROJECT).$(DYLEXT).$(firstword $(subst ., ,$(VER)))
+	STATICLDPROJ += ./libresine.a
+	STATICEXELDFLAGS = $(incl_libdir)/libpng.a $(incl_libdir)/libz.a $(incl_libdir)/libjpeg.a 
+else 
+	ifeq ($(SYS),MINGW)
+		DYLEXT = dll
+		SOFLAGS = -Wl,--out-implib,lib$(PROJECT).$(DYLEXT).a -Wl,--enable-auto-image-base
+		DYLIB = lib$(PROJECT)-$(VER).$(DYLEXT)
+		EXEEXT = .exe
+	else #linux
+		DYLEXT = so
+		DYLIB = lib$(PROJECT).$(DYLEXT).$(VER)
+		SOFLAGS = -shared -Wl,-soname,lib$(PROJECT).$(DYLEXT).$(firstword $(subst ., ,$(VER)))
+	endif
+	STATICLDPROJ = -static $(LDPROJ) $(_LDFLAGS)
+	STATICEXELDFLAGS = -static $(EXELDFLAGS) -lz
 endif
 
-ifeq ($(CC),clang)
-	DBGFLAGS += -std=c99
-	_CFLAGS += -std=c99
-else
-	DBGFLAGS += -std=gnu99
-	_CFLAGS += -std=gnu99 -ffast-math
+ifneq (,$(filter gcc%,$(CC)))
+	_CFLAGS += -ffast-math -std=gnu99
 endif
 
 _CFLAGS += $(CFLAGS)
@@ -96,7 +102,7 @@ SRCSEXE = image.c main.c
 EXEOBJS = $(SRCSEXE:%.c=%.o)
 EXECUTABLE = $(PROJECT)$(EXEEXT)
 
-.PHONY: all lib static dynamic exe debug archive install uninstall tidy clean
+.PHONY: all lib static dynamic exe exe-static debug archive install uninstall tidy clean
 
 all: lib exe
 lib: static dynamic
@@ -119,6 +125,9 @@ dynamic: $(DYLIB)
 $(EXECUTABLE): $(EXEOBJS)
 	$(CC) $(LDPROJ) $(EXELDFLAGS) -o $(EXECUTABLE) $(EXEOBJS)
 exe: $(DYLIB) $(EXECUTABLE)
+exe-static: LDPROJ = $(STATICLDPROJ)
+exe-static: EXELDFLAGS = $(STATICEXELDFLAGS)
+exe-static: $(LIB) $(EXECUTABLE)
 
 archive:
 	rm -f $(PROJECT).zip
