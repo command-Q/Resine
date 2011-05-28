@@ -90,14 +90,14 @@ _CFLAGS += $(CFLAGS)
 LDFLAGS := $(_LDFLAGS) $(LDFLAGS)
 EXELDFLAGS := $(EXELDFLAGS) $(LDFLAGS)
 
-SRCS = lib/util.c lib/dsp.c lib/resine.c
-HEADERS = lib/resine.h $(SRCS:%.c=%.h)
+SRCS = lib/util.c lib/dsp.c lib/core.c
+HEADERS = lib/resine.h
 PRIV_HEADERS = lib/dsp.h lib/fftwapi.h
 OBJS = $(SRCS:%.c=%.o)
 LIB = lib$(PROJECT).a
 DYLN = lib$(PROJECT).$(DYLEXT)
 
-SRCSEXE = image.c main.c
+SRCSEXE = image.c resine.c
 EXEOBJS = $(SRCSEXE:%.c=%.o)
 EXECUTABLE = $(PROJECT)$(EXEEXT)
 

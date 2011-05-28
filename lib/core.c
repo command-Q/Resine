@@ -3,7 +3,7 @@
  * Copyright 2010-2011 command-Q.org. All rights reserved.
  * This library is distributed under the terms of the GNU Lesser General Public License, Version 2.
  * 
- * resine.c - libresine core.
+ * core.c - libresine core.
  */
 
 #include "resine.h"
