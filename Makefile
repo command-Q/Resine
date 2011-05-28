@@ -7,11 +7,9 @@ THREADED = 0
 ## SYSTEM SETTINGS ##
 ARCH = X86
 SYS = MACOSX
-CC = clang
-AR = ar
-RANLIB = ranlib
-STRIP = strip
-INSTALL = install
+RANLIB ?= ranlib
+STRIP ?= strip
+INSTALL ?= install
 
 ## PATHS ##
 # Install destination
@@ -24,14 +22,6 @@ incl_prefix = /opt/local
 incl_libdir = ${incl_prefix}/lib
 incl_includedir = ${incl_prefix}/include
 
-## BUILD FLAGS ##
-DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DPRECISION=$(PRECISION) -DTHREADED=$(THREADED)
-CFLAGS = -Os -I$(incl_includedir) $(DFLAGS)
-DBGFLAGS = -O0 -g -Wall
-LDFLAGS = -lm
-LDPROJ = -L. -l$(PROJECT)
-EXELDFLAGS = -L$(incl_libdir) -lpng -ljpeg
-
 ###################################
 ## DO NOT MODIFY BELOW THIS LINE ##
 ###################################
@@ -40,28 +30,34 @@ EXELDFLAGS = -L$(incl_libdir) -lpng -ljpeg
 PROJECT = resine
 VER = 0.9.2
 
+## BUILD FLAGS ##
+DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DPRECISION=$(PRECISION) -DTHREADED=$(THREADED)
+_CFLAGS = -Os -I$(incl_includedir) $(DFLAGS)
+DBGFLAGS = -O0 -g -Wall
+_LDFLAGS = -lm
+LDPROJ = -L. -l$(PROJECT)
+EXELDFLAGS = -L$(incl_libdir) -lpng -ljpeg
+
 ifeq ($(HAS_FFTW),1)
-	LDFLAGS += -L$(incl_libdir)
+	_LDFLAGS += -L$(incl_libdir)
 	ifeq ($(PRECISION),SINGLE)
-		LDFLAGS += -lfftw3f 
+		_LDFLAGS += -lfftw3f 
 	else ifeq ($(PRECISION),QUAD)
-		LDFLAGS += -lfftw3l
+		_LDFLAGS += -lfftw3l
 	else 
-		LDFLAGS += -lfftw3
+		_LDFLAGS += -lfftw3
 	endif
 	ifeq ($(THREADED),1)
-		LDFLAGS += -lfftw3_threads
+		_LDFLAGS += -lfftw3_threads
 	endif
 endif
 ifeq ($(THREADED),1)
-	LDFLAGS += -lpthread
+	_LDFLAGS += -lpthread
 endif
 
 ifeq ($(ARCH),X86_64)
-	LDFLAGS += -fPIC -march=core2
-	CFLAGS += -fPIC -march=core2
-else ifeq ($(ARCH),X86)
-	CFLAGS += -march=i686
+	_LDFLAGS += -fPIC
+	_CFLAGS += -fPIC
 endif
 
 ifeq ($(SYS),MACOSX)
@@ -81,11 +77,15 @@ endif
 
 ifeq ($(CC),clang)
 	DBGFLAGS += -std=c99
-	CFLAGS += -std=c99
+	_CFLAGS += -std=c99
 else
 	DBGFLAGS += -std=gnu99
-	CFLAGS += -std=gnu99 -ffast-math
+	_CFLAGS += -std=gnu99 -ffast-math
 endif
+
+_CFLAGS += $(CFLAGS)
+LDFLAGS := $(_LDFLAGS) $(LDFLAGS)
+EXELDFLAGS := $(EXELDFLAGS) $(LDFLAGS)
 
 SRCS = lib/util.c lib/dsp.c lib/resine.c
 HEADERS = lib/common.h $(SRCS:%.c=%.h)
@@ -107,7 +107,7 @@ dynamic: $(SRCS) $(OBJS)
 	ln -fs $(DYLIB) $(DYLN)
 
 exe: $(SRCSEXE)
-	$(CC) $(CFLAGS) $(LDPROJ) $(EXELDFLAGS) -o $(EXECUTABLE) $+
+	$(CC) $(_CFLAGS) $(LDPROJ) $(EXELDFLAGS) -o $(EXECUTABLE) $+
 		
 debug: 
 	$(CC) $(DBGFLAGS) -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(SOFLAGS) -o $(DYLIB) $(SRCS)
@@ -115,7 +115,7 @@ debug:
 	$(CC) $(DBGFLAGS) -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(EXELDFLAGS) -o $(EXECUTABLE) $(SRCS) $(SRCSEXE)
 
 $(SRCS):
-	$(CC) -c $(CFLAGS)
+	$(CC) -c $(_CFLAGS)
 
 archive:
 	rm -f $(PROJECT).zip
