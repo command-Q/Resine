@@ -115,7 +115,7 @@ void rsn_destroy(rsn_info,rsn_datap);
 typedef struct stopwatch* stopwatch;
 stopwatch stopwatch_create();
 void watch_add_stop(stopwatch);
-double elapsed(stopwatch,int stop);
+double elapsed(stopwatch,unsigned int stop);
 void destroy_watch(stopwatch);
 
 /* Convenience, not required unless manipulating data members directly. */

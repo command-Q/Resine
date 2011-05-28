@@ -14,30 +14,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
+#include <time.h>
 
 struct stopwatch {
-	struct timeval* timers;
+	clock_t* timers;
 	unsigned int stops;
 };
 
 stopwatch stopwatch_create() {
 	stopwatch watch = malloc(sizeof(struct stopwatch));
-	watch->timers = malloc(sizeof(struct timeval));
+	watch->timers = malloc(sizeof(clock_t));
 	watch->stops = 1;
-	gettimeofday(watch->timers,NULL);
+	watch->timers[0] = clock();
 	return watch;
 }
 
 void watch_add_stop(stopwatch watch) {
-	watch->timers = realloc(watch->timers,sizeof(struct timeval)*++watch->stops);
-	gettimeofday(watch->timers+(watch->stops-1),NULL);
+	watch->timers = realloc(watch->timers,sizeof(clock_t)*++watch->stops);
+	watch->timers[watch->stops-1] = clock();
 }
 
-double elapsed(stopwatch watch,int stop) {
-	struct timeval finish;
-	gettimeofday(&finish,NULL);
-	return (finish.tv_sec+finish.tv_usec*0.000001)-(watch->timers[stop].tv_sec+watch->timers[stop].tv_usec*0.000001);		
+double elapsed(stopwatch watch,unsigned int stop) {
+	return (clock() - watch->timers[stop]) / (double)CLOCKS_PER_SEC;
 }
 
 void destroy_watch(stopwatch watch) {
