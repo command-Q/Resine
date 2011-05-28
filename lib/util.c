@@ -7,31 +7,31 @@
  *	Includes a high precision timer for profiling and wrapper functions to ensure the proper memory allocation regardless of the transform type.
  */
 
-#include "util.h"
 
 #include "fftwapi.h"
 
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 
 struct stopwatch {
 	struct timeval* timers;
-	int stops;
+	unsigned int stops;
 };
 
 stopwatch stopwatch_create() {
-	stopwatch watch = malloc(sizeof(struct timeval*)+sizeof(int));
+	stopwatch watch = malloc(sizeof(struct stopwatch));
 	watch->timers = malloc(sizeof(struct timeval));
 	watch->stops = 1;
-	gettimeofday(&watch->timers[0],NULL);
+	gettimeofday(watch->timers,NULL);
 	return watch;
 }
 
 void watch_add_stop(stopwatch watch) {
-	watch->timers = realloc(watch->timers,sizeof(watch->timers[0])*(++watch->stops));
-	gettimeofday(&watch->timers[watch->stops-1],NULL);
+	watch->timers = realloc(watch->timers,sizeof(struct timeval)*++watch->stops);
+	gettimeofday(watch->timers+(watch->stops-1),NULL);
 }
 
 double elapsed(stopwatch watch,int stop) {

@@ -13,19 +13,31 @@
 
 #include <stdlib.h>
 
-/* Initialize structs, set up threads */
+/* Methods here should be either public or fully local, so no separate private header */
+void rsn_decompose_native(rsn_info,rsn_datap);
+void rsn_recompose_native(rsn_info,rsn_datap);
+#if HAS_FFTW
+void rsn_decompose_fftw(rsn_info,rsn_datap);
+void rsn_recompose_fftw(rsn_info,rsn_datap);
+void rsn_decompose_fftw_2d(rsn_info,rsn_datap);
+void rsn_recompose_fftw_2d(rsn_info,rsn_datap);
+#endif
+void rsn_scale_standard(rsn_info,rsn_datap);
+void rsn_upscale_smooth(rsn_info,rsn_datap);
+
+// Will replace the function call in a future rev
+#define RSN_DEFAULTS (rsn_config) {\
+.transform	=	RSN_TRANSFORM_DEFAULT,\
+.scaling	=	RSN_SCALING_STANDARD,\
+.verbosity	=	0,\
+.threads	=	1,\
+.greed		=	RSN_GREED_RETAIN\
+}
 rsn_config rsn_defaults() {
-	// {RSN_TRANSFORM_DEFAULT,RSN_SCALING_STANDARD,0,1,true};
-	// But just to better illustrate the defaults
-	rsn_config config;
-	config.transform = RSN_TRANSFORM_DEFAULT;
-	config.scaling = RSN_SCALING_STANDARD;
-	config.verbosity = 0;
-	config.threads = 1;
-	config.greed = RSN_GREED_RETAIN;
-	return config;
+	return RSN_DEFAULTS;
 }
 
+/* Initialize structs, set up threads */
 rsn_datap rsn_init(rsn_info info, rsn_image img) {
 	rsn_datap data = malloc(sizeof(rsn_data));
 	data->image = img;
@@ -193,7 +205,14 @@ void rsn_scale(rsn_info info, rsn_datap data) {
 
 void rsn_scale_standard(rsn_info info, rsn_datap data) {
 	int z,y,x;
-	rsn_frequency scale = info.config.transform == RSN_TRANSFORM_FFTW ? 0.5/rsn_sqrt(info.width*info.height) : rsn_sqrt(info.width_s*info.height_s)/rsn_sqrt(info.width*info.height);
+	rsn_frequency scale;
+#ifdef HAS_FFTW // This is so stupid
+	if(info.config.transform == RSN_TRANSFORM_FFTW)
+		scale = 0.5/rsn_sqrt(info.width*info.height);
+	else
+#endif
+		scale = rsn_sqrt(info.width_s*info.height_s)/rsn_sqrt(info.width*info.height);
+	
 	int ylim = info.height < info.height_s ? info.height : info.height_s;
 	int xlim = info.width < info.width_s ? info.width : info.width_s;
 	for(z = 0; z < info.channels; z++)
