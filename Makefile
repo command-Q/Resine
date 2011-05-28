@@ -33,7 +33,6 @@ VER = 0.9.2
 ## BUILD FLAGS ##
 DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DPRECISION=$(PRECISION) -DTHREADED=$(THREADED)
 _CFLAGS = -Os -I$(incl_includedir) $(DFLAGS)
-DBGFLAGS = -O0 -g -Wall
 _LDFLAGS = -lm
 LDPROJ = -L. -l$(PROJECT)
 EXELDFLAGS = -L$(incl_libdir) -lpng -ljpeg
@@ -94,28 +93,32 @@ LIB = lib$(PROJECT).a
 DYLN = lib$(PROJECT).$(DYLEXT)
 
 SRCSEXE = image.c main.c
+EXEOBJS = $(SRCSEXE:%.c=%.o)
 EXECUTABLE = $(PROJECT)$(EXEEXT)
+
+.PHONY: all lib static dynamic exe debug archive install uninstall tidy clean
 
 all: lib exe
 lib: static dynamic
 
-static: $(SRCS) $(OBJS)
-	$(AR) rcs $(LIB) $(OBJS)
+debug: _CFLAGS = -O0 -g -Wall -I$(incl_includedir) $(CFLAGS)
+debug: all
 
-dynamic: $(SRCS) $(OBJS)
+.c.o:
+	$(CC) -c $(_CFLAGS) $(DFLAGS) $< -o $@
+
+$(LIB): $(OBJS)
+	$(AR) rcs $(LIB) $(OBJS)
+static: $(LIB)
+
+$(DYLIB): $(OBJS)
 	$(CC) $(LDFLAGS) $(SOFLAGS) -o $(DYLIB) $(OBJS)
 	ln -fs $(DYLIB) $(DYLN)
+dynamic: $(DYLIB)
 
-exe: $(SRCSEXE)
-	$(CC) $(_CFLAGS) $(LDPROJ) $(EXELDFLAGS) -o $(EXECUTABLE) $+
-		
-debug: 
-	$(CC) $(DBGFLAGS) -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(SOFLAGS) -o $(DYLIB) $(SRCS)
-	ln -fs $(DYLIB) $(DYLN)
-	$(CC) $(DBGFLAGS) -I$(incl_includedir) $(DFLAGS) $(LDFLAGS) $(EXELDFLAGS) -o $(EXECUTABLE) $(SRCS) $(SRCSEXE)
-
-$(SRCS):
-	$(CC) -c $(_CFLAGS)
+$(EXECUTABLE): $(EXEOBJS)
+	$(CC) $(LDPROJ) $(EXELDFLAGS) -o $(EXECUTABLE) $(EXEOBJS)
+exe: $(DYLIB) $(EXECUTABLE)
 
 archive:
 	rm -f $(PROJECT).zip
@@ -140,6 +143,5 @@ uninstall:
 
 tidy:
 	rm -f $(OBJS)
-
 clean: tidy
 	rm -f $(LIB) $(DYLIB) $(DYLN) $(EXECUTABLE)
