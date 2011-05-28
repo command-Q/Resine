@@ -4,7 +4,7 @@
  * This library is distributed under the terms of the GNU Lesser General Public License, Version 2.
  * 
  * util.c - libresine utility and helper functions. 
- *	Includes a high precision timer for profiling and wrapper functions to insure the proper memory allocation regardless of the transform type.
+ *	Includes a high precision timer for profiling and wrapper functions to ensure the proper memory allocation regardless of the transform type.
  */
 
 #include "util.h"
