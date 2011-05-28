@@ -11,14 +11,14 @@
 
 #include "common.h"
 
-#if PRECISION == SINGLE
+#if RSN_PRECISION == SINGLE
 #	define	rsn_cos			cosf
 #	define	rsn_sqrt		sqrtf
 #	define	rsn_fabs		fabsf
 #	define	rsn_log			logf
 #	define	rsn_pow			powf
 #	define	rsn_copysign	copysignf
-#elif PRECISION == QUADRUPLE
+#elif RSN_PRECISION == QUADRUPLE
 #	define	rsn_cos			cosl
 #	define	rsn_sqrt		sqrtl
 #	define	rsn_fabs		fabsl

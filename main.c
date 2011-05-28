@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
 			   "\n"
 			   "\t-q <int>\t JPEG compression quality (0-100) [90]\n"
 			   "\n",
-			   RSN_VERSION,RSN_PRECISION,sizeof(rsn_frequency),RSN_TRANSFORM_DEFAULT);
+			   RSN_VERSION,RSN_PRECISION_STR,sizeof(rsn_frequency),RSN_TRANSFORM_DEFAULT);
 		return 0;
 	}
 
