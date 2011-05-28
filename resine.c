@@ -18,6 +18,8 @@
 
 int main(int argc, char **argv) {
 	if(argc < 2) {
+	rsn_info info = {rsn_defaults(),0,0,0,0,0};
+
 		printf("Resine - Fourier-based image resampling library.\n"
 			   "\t©2010-2011 command-Q.org\n"
 			   "\tVersion %s\n"
@@ -50,10 +52,10 @@ int main(int argc, char **argv) {
 #if HAS_FFTW
 			   "\t        \t\t- 1: FFTW\n"
 #endif
-			   "\t-S <int>\t Scaling method [0]\n"
+			   "\t-S <int>\t Scaling method [%d]\n"
 			   "\t        \t\t- 0: Standard\n"
 			   "\t        \t\t- 1: Smooth (upscaling only)\n"
-			   "\t-G <int>\t Greed - Memory consumption/speed trade-offs [2]\n"
+			   "\t-G <int>\t Greed - Memory consumption/speed trade-offs [%d]\n"
 			   "\t        \t\t- 0: Lean - Allocate and free memory on the fly\n"
 			   "\t        \t\t- 1: Prealloc - Preallocate image data\n"
 			   "\t        \t\t- 2: Retain - Don't free any memory until rsn_destroy is called\n"
@@ -69,16 +71,14 @@ int main(int argc, char **argv) {
 			   "\n"
 			   "\t-q <int>\t JPEG compression quality (0-100) [90]\n"
 			   "\n",
-			   RSN_VERSION,RSN_PRECISION_STR,sizeof(rsn_frequency),RSN_TRANSFORM_DEFAULT);
+			   RSN_VERSION,RSN_PRECISION_STR,sizeof(rsn_frequency),info.config.transform,info.config.scaling,info.config.greed);
 		return 0;
 	}
 
 	int c, in_type=RSN_IMGTYPE_NONE, out_type=RSN_IMGTYPE_NONE, jpeg_q=90;
 	float sx = 1.0,sy = 1.0;
-	char *print = NULL, *graph = NULL;
-	
-	rsn_info info = {rsn_defaults(),0,0,0,0,0};
-		
+	char* print = NULL,* graph = NULL;
+
 	while((c = getopt(argc,argv,"s:x:y:w:h:T:S:G:p:g:vq:")) != -1)
 		switch (c) {
 			case 's' : sx = sy = strtof(optarg,NULL);					break;
