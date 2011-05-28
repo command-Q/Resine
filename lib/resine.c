@@ -9,6 +9,9 @@
 #include "resine.h"
 
 #include "fftwapi.h"
+#include "dsp.h"
+
+#include <stdlib.h>
 
 /* Initialize structs, set up threads */
 rsn_config rsn_defaults() {

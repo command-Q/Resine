@@ -9,11 +9,6 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <stdarg.h>
-
-#include <png.h>
-#include <jpeglib.h>
-
 #include "lib/resine.h"
 
 #define PNG_DEBUG	3

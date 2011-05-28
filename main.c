@@ -9,6 +9,13 @@
 
 #include "image.h"
 
+#include <math.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <getopt.h>
+
 int main(int argc, char **argv) {
 	if(argc < 2) {
 		printf("Resine - Fourier-based image resampling library.\n"

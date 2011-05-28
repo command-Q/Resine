@@ -26,7 +26,7 @@ incl_includedir = ${incl_prefix}/include
 
 ## PROJECT DEFINITION ##
 PROJECT = resine
-VER = 0.9.2
+VER = 0.9.3
 
 ## BUILD FLAGS ##
 DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DRSN_PRECISION=$(PRECISION) -DTHREADED=$(THREADED) -DSKIP_CONFIG
@@ -91,8 +91,8 @@ LDFLAGS := $(_LDFLAGS) $(LDFLAGS)
 EXELDFLAGS := $(EXELDFLAGS) $(LDFLAGS)
 
 SRCS = lib/util.c lib/dsp.c lib/resine.c
-HEADERS = lib/common.h $(SRCS:%.c=%.h)
-PRIV_HEADERS = lib/fftwapi.h
+HEADERS = lib/resine.h $(SRCS:%.c=%.h)
+PRIV_HEADERS = lib/dsp.h lib/fftwapi.h
 OBJS = $(SRCS:%.c=%.o)
 LIB = lib$(PROJECT).a
 DYLN = lib$(PROJECT).$(DYLEXT)
@@ -140,8 +140,7 @@ install: all
 	$(INSTALL) $(LIB) $(libdir)
 	$(INSTALL) $(DYLIB) $(libdir)
 	ln -fs $(libdir)/$(DYLIB) $(libdir)/$(DYLN)
-	$(INSTALL) -d $(includedir)/$(PROJECT)
-	$(INSTALL) $(HEADERS) resine_config.h $(includedir)/$(PROJECT)
+	$(INSTALL) $(HEADERS) resine_config.h $(includedir)
 	$(INSTALL) -s $(EXECUTABLE) $(bindir)
 ifeq ($(SYS),MACOSX)
 	install_name_tool -id $(libdir)/$(DYLIB) $(libdir)/$(DYLIB)
@@ -150,7 +149,7 @@ endif
 
 uninstall:
 	rm $(libdir)/$(LIB) $(libdir)/$(DYLIB) $(libdir)/$(DYLN)
-	rm -r $(includedir)/$(PROJECT)
+	rm $(includedir)/$(HEADERS) $(includedir)/resine_config.h
 	rm $(bindir)/$(EXECUTABLE)
 
 tidy:

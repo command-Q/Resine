@@ -8,6 +8,13 @@
 
 #include "image.h"
 
+#include <math.h>
+#include <stdarg.h>
+#include <stdlib.h>
+
+#include <png.h>
+#include <jpeglib.h>
+
 void abort_(const char* s, ...) {
 	va_list args;
 	va_start(args, s);

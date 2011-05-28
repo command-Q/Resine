@@ -9,7 +9,9 @@
 #ifndef DSP_H
 #define DSP_H
 
-#include "common.h"
+#include "resine.h"
+
+#include <math.h>
 
 #if RSN_PRECISION == SINGLE
 #	define	rsn_cos			cosf
@@ -44,15 +46,5 @@ void rsn_dct_direct(int,int,int,rsn_image,rsn_spectrum);
 /* Row Column method */
 void rsn_dct_rowcol(int,int,int,rsn_image,rsn_spectrum);
 void rsn_idct_rowcol(int,int,int,rsn_spectrum,rsn_image); //FIXME
-
-/* Logarithmic spectrogram image */
-/* Absolute-value spectrogram (canonical) */
-rsn_image spectrogram(int,int,int,rsn_spectrum);
-/* Invertible center-anchored spectrogram */
-rsn_image spectrogram_anchored(int,int,int,rsn_spectrum);
-rsn_spectrum spectrogram_decompress(int,int,int,rsn_image);
-/* Composites hidden image over spectrogram												*
- * The image to be composited is required to be the same size as the input, with alpha	*/
-void composite_spectrum(int,int,int,rsn_spectrum,rsn_image);
 
 #endif

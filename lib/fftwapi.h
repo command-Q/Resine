@@ -10,7 +10,7 @@
 #define FFTWAPI_H
 
 #if HAS_FFTW
-#	include "common.h"
+#	include "resine.h"
 #	include <fftw3.h>
 #	if RSN_PRECISION == SINGLE
 #		define rsn_fftw_malloc				fftwf_malloc
