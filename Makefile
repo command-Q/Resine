@@ -84,6 +84,8 @@ endif
 
 ifneq (,$(filter gcc%,$(CC)))
 	_CFLAGS += -ffast-math -std=gnu99
+else
+	_CFLAGS += -std=c99
 endif
 
 _CFLAGS += $(CFLAGS) -I./lib
