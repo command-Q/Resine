@@ -11,13 +11,9 @@
 #define UTIL_H
 
 #include <string.h>
-#include <sys/time.h>
 #include "common.h"
 
-typedef struct {
-	struct timeval* timers;
-	int stops;
-}* stopwatch;
+typedef struct stopwatch* stopwatch;
 
 stopwatch stopwatch_create();
 void	watch_add_stop(stopwatch);

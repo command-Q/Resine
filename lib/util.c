@@ -11,6 +11,13 @@
 
 #include "fftwapi.h"
 
+#include <sys/time.h>
+
+struct stopwatch {
+	struct timeval* timers;
+	int stops;
+};
+
 stopwatch stopwatch_create() {
 	stopwatch watch = malloc(sizeof(struct timeval*)+sizeof(int));
 	watch->timers = malloc(sizeof(struct timeval));
