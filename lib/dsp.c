@@ -8,6 +8,8 @@
 
 #include "dsp.h"
 
+#include "fftwapi.h"
+
 /* Canonical implementation of the i/DCT with (very) minor optimizations */
 rsn_frequency CC(int a, int b) { return a ? (b ? 1 : M_SQRT1_2) : (b ? M_SQRT1_2 : 0.5); }
 

@@ -8,6 +8,8 @@
 
 #include "resine.h"
 
+#include "fftwapi.h"
+
 /* Initialize structs, set up threads */
 rsn_config rsn_defaults() {
 	// {RSN_TRANSFORM_DEFAULT,RSN_SCALING_STANDARD,0,1,true};

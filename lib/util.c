@@ -9,6 +9,8 @@
 
 #include "util.h"
 
+#include "fftwapi.h"
+
 stopwatch stopwatch_create() {
 	stopwatch watch = malloc(sizeof(struct timeval*)+sizeof(int));
 	watch->timers = malloc(sizeof(struct timeval));

@@ -94,6 +94,7 @@ EXELDFLAGS := $(EXELDFLAGS) $(LDFLAGS)
 
 SRCS = lib/util.c lib/dsp.c lib/resine.c
 HEADERS = lib/common.h $(SRCS:%.c=%.h)
+PRIV_HEADERS = lib/fftwapi.h
 OBJS = $(SRCS:%.c=%.o)
 LIB = lib$(PROJECT).a
 DYLN = lib$(PROJECT).$(DYLEXT)
@@ -131,7 +132,7 @@ exe-static: $(LIB) $(EXECUTABLE)
 
 archive:
 	rm -f $(PROJECT).zip
-	zip -q $(PROJECT).zip $(HEADERS) $(SRCS) $(SRCSEXE:%.c=%.h) $(SRCSEXE)
+	zip -q $(PROJECT).zip $(HEADERS) $(PRIV_HEADERS) $(SRCS) $(SRCSEXE:%.c=%.h) $(SRCSEXE)
 
 install: all
 	$(INSTALL) $(LIB) $(libdir)
