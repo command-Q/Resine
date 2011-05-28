@@ -9,13 +9,14 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#ifndef SKIP_CONFIG
+#	include "resine_config.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <math.h>
-#ifdef THREADED
-#	include <pthread.h>
-#endif
 
 #if HAS_FFTW
 #	define RSN_TRANSFORM_DEFAULT RSN_TRANSFORM_FFTW

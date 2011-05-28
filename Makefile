@@ -31,7 +31,7 @@ PROJECT = resine
 VER = 0.9.2
 
 ## BUILD FLAGS ##
-DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DPRECISION=$(PRECISION) -DTHREADED=$(THREADED)
+DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DPRECISION=$(PRECISION) -DTHREADED=$(THREADED) -DSKIP_CONFIG
 _CFLAGS = -Os -I$(incl_includedir)
 _LDFLAGS = -lm
 LDPROJ = -L. -l$(PROJECT)
@@ -111,14 +111,18 @@ lib: static dynamic
 debug: _CFLAGS = -O0 -g -Wall -I$(incl_includedir) $(CFLAGS)
 debug: all
 
+resine_config.h:
+	@echo "#define PRECISION $(PRECISION)" > resine_config.h
+	@echo "#define HAS_FFTW $(HAS_FFTW)" >> resine_config.h
+
 .c.o:
 	$(CC) -c $(_CFLAGS) $(DFLAGS) $< -o $@
 
-$(LIB): $(OBJS)
+$(LIB): resine_config.h $(OBJS)
 	$(AR) rcs $(LIB) $(OBJS)
 static: $(LIB)
 
-$(DYLIB): $(OBJS)
+$(DYLIB): resine_config.h $(OBJS)
 	$(CC) $(LDFLAGS) $(SOFLAGS) -o $(DYLIB) $(OBJS)
 	ln -fs $(DYLIB) $(DYLN)
 dynamic: $(DYLIB)
@@ -139,7 +143,7 @@ install: all
 	$(INSTALL) $(DYLIB) $(libdir)
 	ln -fs $(libdir)/$(DYLIB) $(libdir)/$(DYLN)
 	$(INSTALL) -d $(includedir)/$(PROJECT)
-	$(INSTALL) $(HEADERS) $(includedir)/$(PROJECT)
+	$(INSTALL) $(HEADERS) resine_config.h $(includedir)/$(PROJECT)
 	$(INSTALL) $(EXECUTABLE) $(bindir)
 ifeq ($(SYS),MACOSX)
 	install_name_tool -id $(libdir)/$(DYLIB) $(libdir)/$(DYLIB)
@@ -152,6 +156,6 @@ uninstall:
 	rm $(bindir)/$(EXECUTABLE)
 
 tidy:
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(EXEOBJS)
 clean: tidy
-	rm -f $(LIB) $(DYLIB) $(DYLN) $(EXECUTABLE)
+	rm -f $(LIB) $(DYLIB) $(DYLN) $(EXECUTABLE) resine_config.h
