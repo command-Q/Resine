@@ -86,7 +86,7 @@ ifneq (,$(filter gcc%,$(CC)))
 	_CFLAGS += -ffast-math -std=gnu99
 endif
 
-_CFLAGS += $(CFLAGS)
+_CFLAGS += $(CFLAGS) -I./lib
 LDFLAGS := $(_LDFLAGS) $(LDFLAGS)
 EXELDFLAGS := $(EXELDFLAGS) $(LDFLAGS)
 
@@ -106,7 +106,7 @@ EXECUTABLE = $(PROJECT)$(EXEEXT)
 all: lib exe
 lib: static dynamic
 
-debug: _CFLAGS = -O0 -g -Wall -I$(incl_includedir) $(CFLAGS)
+debug: _CFLAGS = -O0 -g -Wall -I$(incl_includedir) $(CFLAGS) -I./lib
 debug: all
 
 resine_config.h:

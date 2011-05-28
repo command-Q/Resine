@@ -9,7 +9,7 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include "lib/resine.h"
+#include <resine.h>
 
 #define PNG_DEBUG	3
 
