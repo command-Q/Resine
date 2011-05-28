@@ -50,7 +50,7 @@ rsn_datap rsn_init(rsn_info info, rsn_image img) {
 		data->freq_image_s = rsn_malloc(info.config,sizeof(rsn_frequency),info.channels*info.height_s*info.width_s);
 		data->image_s	   = rsn_malloc_array(info.config,sizeof(rsn_pel),info.height_s,info.width_s*info.channels);
 	}
-#if THREADED && HAS_FFTW
+#if RSN_IS_THREADED && HAS_FFTW
 	fftw_init_threads();
 #endif
 	return data;
@@ -105,7 +105,7 @@ void rsn_decompose_fftw(rsn_info info, rsn_datap data) {
 			for(x = 0; x < info.width; x++)
 				data->freq_image[z*info.height*info.width+y*info.width+x] = data->image[y][x*info.channels+z];
 
-#if THREADED 
+#if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
 	rsn_fftw_plan p = rsn_fftw_plan_r2r_3d(info.channels,info.height,info.width,data->freq_image,data->freq_image,FFTW_REDFT10,FFTW_REDFT10,FFTW_REDFT10,FFTW_ESTIMATE); //FFTW_MEASURE
@@ -116,7 +116,7 @@ void rsn_decompose_fftw(rsn_info info, rsn_datap data) {
 void rsn_recompose_fftw(rsn_info info, rsn_datap data) {
 	int z,y,x;
 	rsn_spectrum output = rsn_fftw_malloc(sizeof(rsn_frequency)*info.channels*info.width_s*info.height_s);
-#if THREADED 
+#if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
 	rsn_fftw_plan ip = rsn_fftw_plan_r2r_3d(info.channels,info.height_s,info.width_s,data->freq_image_s,output,FFTW_REDFT01,FFTW_REDFT01,FFTW_REDFT01,FFTW_ESTIMATE); //FFTW_MEASURE
@@ -143,7 +143,7 @@ void rsn_decompose_fftw_2d(rsn_info info, rsn_datap data) {
 			for(x = 0; x < info.width; x++)
 				planes[z][y*info.width+x] = data->image[y][x*info.channels+z];
 
-#if THREADED 
+#if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
 
@@ -169,7 +169,7 @@ void rsn_recompose_fftw_2d(rsn_info info, rsn_datap data) {
 			for(x = 0; x < info.width_s; x++)
 				planes[z][y*info.width_s+x] = data->freq_image_s[z*info.height_s*info.width_s+y*info.width_s+x];
 	
-#if THREADED 
+#if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
 	rsn_fftw_plan ip = rsn_fftw_plan_r2r_2d(info.height_s,info.width_s,planes[0],planes[0],FFTW_REDFT01,FFTW_REDFT01,FFTW_ESTIMATE); //FFTW_MEASURE
@@ -266,7 +266,7 @@ void resine_data(rsn_info info, rsn_datap data) {
 
 rsn_image rsn_cleanup(rsn_info info, rsn_datap data) {
 #if HAS_FFTW
-#	if THREADED
+#	if RSN_IS_THREADED
 	fftw_cleanup_threads();
 #	else
 	rsn_fftw_cleanup();

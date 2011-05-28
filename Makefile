@@ -29,7 +29,7 @@ PROJECT = resine
 VER = 0.9.3
 
 ## BUILD FLAGS ##
-DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DRSN_PRECISION=$(PRECISION) -DTHREADED=$(THREADED) -DSKIP_CONFIG
+DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DRSN_PRECISION=$(PRECISION) -DRSN_IS_THREADED=$(THREADED) -DSKIP_CONFIG
 _CFLAGS = -Os -I$(incl_includedir)
 _LDFLAGS = -lm
 LDPROJ = -L. -l$(PROJECT)
@@ -110,8 +110,9 @@ debug: _CFLAGS = -O0 -g -Wall -I$(incl_includedir) $(CFLAGS) -I./lib
 debug: all
 
 resine_config.h:
-	@echo "#define RSN_PRECISION $(RSN_PRECISION)" > resine_config.h
+	@echo "#define RSN_PRECISION $(PRECISION)" > resine_config.h
 	@echo "#define HAS_FFTW $(HAS_FFTW)" >> resine_config.h
+	@echo "#define RSN_IS_THREADED $(THREADED)" >> resine_config.h
 
 .c.o:
 	$(CC) -c $(_CFLAGS) $(DFLAGS) $< -o $@

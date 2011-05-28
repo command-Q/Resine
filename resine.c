@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 			   "\t        \t\t- 1: Prealloc - Preallocate image data\n"
 			   "\t        \t\t- 2: Retain - Don't free any memory until rsn_destroy is called\n"
 			   "\t        \t\t- 3: Prealloc and retain\n"
-#if THREADED
+#if RSN_IS_THREADED
 			   "\t-t <int>\t Number of threads to use.\n"		   
 #endif
 			   "\t-g <filename>\t Graph: Draw spectrogram to file <filename>.png (NOTE: Bumps Greed level to Retain if necessary).\n"		   
