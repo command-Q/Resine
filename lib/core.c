@@ -218,7 +218,7 @@ rsn_image resine(rsn_info info, rsn_image image) {
 	return rsn_cleanup(info,data);
 }
 
-rsn_image resine_data(rsn_info info, rsn_datap data) {
+void resine_data(rsn_info info, rsn_datap data) {
 	stopwatch watch = NULL; // shut up clang
 	if(info.config.verbosity) watch = stopwatch_create();
 	
@@ -243,8 +243,6 @@ rsn_image resine_data(rsn_info info, rsn_datap data) {
 		printf("Total processing took %f seconds\n",elapsed(watch,0));
 		destroy_watch(watch);
 	}
-	
-	return data->image_s;
 }
 
 rsn_image rsn_cleanup(rsn_info info, rsn_datap data) {

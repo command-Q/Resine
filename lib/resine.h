@@ -94,7 +94,7 @@ rsn_image resine(rsn_info,rsn_image);
 rsn_datap rsn_init(rsn_info,rsn_image);
 
 /* High-level wrapper for forward transform, scale, inverse transform */
-rsn_image resine_data(rsn_info,rsn_datap);
+void resine_data(rsn_info,rsn_datap);
 
 /* Mid-level transform wrappers */
 void rsn_decompose(rsn_info,rsn_datap);

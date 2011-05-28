@@ -144,7 +144,8 @@ int main(int argc, char **argv) {
 	}
 	
 	rsn_datap data = rsn_init(info,img);
-	rsn_image oimg = resine_data(info,data);
+	resine_data(info,data);
+	
 	if(print) print_spectrum(info.channels,info.height_s,info.width_s,2,data->freq_image_s,print);
 	if(graph) {
 		rsn_image specta = spectrogram(info.channels,info.height_s,info.width_s,data->freq_image_s);
@@ -153,9 +154,9 @@ int main(int argc, char **argv) {
 	}
 	
 	switch(out_type) {
-		case  RSN_IMGTYPE_PNG : write_png_file(info,outfile,oimg);			break;
-		case RSN_IMGTYPE_JPEG : write_jpeg_file(info,outfile,oimg,jpeg_q);	break;
-		default				  :												break;
+		case  RSN_IMGTYPE_PNG : write_png_file(info,outfile,data->image_s);			break;
+		case RSN_IMGTYPE_JPEG : write_jpeg_file(info,outfile,data->image_s,jpeg_q);	break;
+		default				  :														break;
 	}
 	
 	rsn_destroy(info,data);
