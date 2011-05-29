@@ -17,9 +17,10 @@
 #include <getopt.h>
 
 int main(int argc, char **argv) {
-	if(argc < 2) {
+	
 	rsn_info info = {rsn_defaults(),0,0,0,0,0};
-
+	
+	if(argc < 2) {
 		printf("Resine - Fourier-based image resampling library.\n"
 			   "\t©2010-2011 command-Q.org\n"
 			   "\tVersion %s\n"
