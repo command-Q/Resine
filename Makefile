@@ -1,5 +1,6 @@
 ## BUILD CONFIGURATION ##
 HAS_FFTW ?= 1
+HAS_KISS ?= 1
 # Valid options are SINGLE, DOUBLE, or QUAD
 PRECISION ?= DOUBLE
 THREADED ?= 0
@@ -29,12 +30,15 @@ PROJECT = resine
 VER = 0.9.3
 
 ## BUILD FLAGS ##
-DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DRSN_PRECISION=$(PRECISION) -DRSN_IS_THREADED=$(THREADED) -DSKIP_CONFIG
+DFLAGS = -DHAS_FFTW=$(HAS_FFTW) -DHAS_KISS=$(HAS_KISS) -DRSN_PRECISION=$(PRECISION) -DRSN_IS_THREADED=$(THREADED) -DSKIP_CONFIG
 _CFLAGS = -Os -I$(incl_includedir)
 _LDFLAGS = -lm
 LDPROJ = -L. -l$(PROJECT)
 EXELDFLAGS = -L$(incl_libdir) -lpng -ljpeg
 
+ifeq ($(HAS_KISS),1)
+	KISS = $(patsubst %.c,%.o,$(wildcard kissfft/*.c))
+endif
 ifeq ($(HAS_FFTW),1)
 	_LDFLAGS += -L$(incl_libdir)
 	ifeq ($(PRECISION),SINGLE)
@@ -85,7 +89,7 @@ else
 	_CFLAGS += -std=c99
 endif
 
-_CFLAGS += $(CFLAGS) -I./lib
+_CFLAGS += $(CFLAGS) -I./lib -I./kissfft
 LDFLAGS := $(_LDFLAGS) $(LDFLAGS)
 EXELDFLAGS := $(EXELDFLAGS) $(LDFLAGS)
 
@@ -101,27 +105,32 @@ EXEOBJS = $(SRCSEXE:%.c=%.o)
 EXECUTABLE = $(PROJECT)$(EXEEXT)
 
 .PHONY: all lib static dynamic exe exe-static debug archive install uninstall tidy clean
+.EXPORT_ALL_VARIABLES: $(KISS)
 
 all: lib exe
 lib: static dynamic
 
-debug: _CFLAGS = -O0 -g -Wall -I$(incl_includedir) $(CFLAGS) -I./lib
+debug: _CFLAGS = -O0 -g -Wall -I$(incl_includedir) $(CFLAGS) -I./lib -I./kissfft
 debug: all
 
 resine_config.h:
 	@echo "#define RSN_PRECISION $(PRECISION)" > resine_config.h
 	@echo "#define HAS_FFTW $(HAS_FFTW)" >> resine_config.h
+	@echo "#define HAS_KISS $(HAS_KISS)" >> resine_config.h
 	@echo "#define RSN_IS_THREADED $(THREADED)" >> resine_config.h
 
 .c.o:
 	$(CC) -c $(_CFLAGS) $(DFLAGS) $< -o $@
 
-$(LIB): resine_config.h $(OBJS)
-	$(AR) rcs $(LIB) $(OBJS)
+$(KISS):
+	$(MAKE) -C kissfft
+
+$(LIB): resine_config.h $(OBJS) $(KISS)
+	$(AR) rcs $(LIB) $(OBJS) $(KISS)
 static: $(LIB)
 
-$(DYLIB): resine_config.h $(OBJS)
-	$(CC) $(LDFLAGS) $(SOFLAGS) -o $(DYLIB) $(OBJS)
+$(DYLIB): resine_config.h $(OBJS) $(KISS)
+	$(CC) $(LDFLAGS) $(SOFLAGS) -o $(DYLIB) $(OBJS) $(KISS)
 	ln -fs $(DYLIB) $(DYLN)
 dynamic: $(DYLIB)
 
@@ -154,5 +163,8 @@ uninstall:
 
 tidy:
 	rm -f $(OBJS) $(EXEOBJS)
+ifeq ($(HAS_KISS),1)
+	$(MAKE) -C kissfft clean
+endif
 clean: tidy
 	rm -f $(LIB) $(DYLIB) $(DYLN) $(EXECUTABLE) resine_config.h
