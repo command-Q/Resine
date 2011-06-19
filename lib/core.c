@@ -195,7 +195,7 @@ void rsn_recompose_kiss(rsn_info info, rsn_datap data) {
 
 		for(int y = 0; y < info.height_s; y++)
 			for(int x = 0; x < info.width_s; x++) {
-				mirrored[y*info.width_s*2+x] *= 0.5/rsn_sqrt(info.width*info.height);
+				mirrored[y*info.width_s*2+x] /= 4*info.width_s*info.height_s;
 				data->image_s[y][x*info.channels+z] = mirrored[y*info.width_s*2+x] > 255 ? 255 : mirrored[y*info.width_s*2+x] < 0 ? 0 : round(mirrored[y*info.width_s*2+x]);
 			}
 	}
@@ -288,7 +288,7 @@ void rsn_recompose_fftw_2d(rsn_info info, rsn_datap data) {
 	for(z = 0; z < info.channels; z++)
 		for(y = 0; y < info.height_s; y++)
 			for(x = 0; x < info.width_s; x++) {
-				planes[z][y*info.width_s+x] *= 0.5/rsn_sqrt(info.width*info.height);
+				planes[z][y*info.width_s+x] /= 4*info.width_s*info.height_s;
 				data->image_s[y][x*info.channels+z] =	planes[z][y*info.width_s+x] > 255 ? 255 : planes[z][y*info.width_s+x] < 0 ? 0 :
 														round(planes[z][y*info.width_s+x]);
 			}
@@ -314,15 +314,15 @@ void rsn_scale_standard(rsn_info info, rsn_datap data) {
 	rsn_frequency scale;
 #ifdef HAS_FFTW // This is so stupid
 	if(info.config.transform == RSN_TRANSFORM_FFTW)
-		scale = 0.5/rsn_sqrt(info.width*info.height);
+		scale = (info.width_s*info.height_s)/(rsn_frequency)(info.width*info.height);
 	else
 #endif
 #ifdef HAS_KISS
 	if(info.config.transform == RSN_TRANSFORM_KISS)
-		scale = 0.5/rsn_sqrt(info.width*info.height);
+		scale = (info.width_s*info.height_s)/(rsn_frequency)(info.width*info.height);
 	else
 #endif
-		scale = rsn_sqrt(info.width_s*info.height_s)/rsn_sqrt(info.width*info.height);
+		scale = rsn_sqrt((info.width_s*info.height_s)/(rsn_frequency)(info.width*info.height));
 	
 	int ylim = info.height < info.height_s ? info.height : info.height_s;
 	int xlim = info.width < info.width_s ? info.width : info.width_s;
