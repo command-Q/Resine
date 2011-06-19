@@ -1,6 +1,6 @@
 libresine (the contents of the lib directory in this distribution) is licensed under the GNU Lesser General Public License, version 2.1. See COPYING.LGPL.txt.
 
-Sources included in this package but not part of libresine are licensed under the Do What The Fuck You Want To Public License version 2. See COPYING.WTFPL.txt.
+To facilitate their use as sample code, sources included in this package but not part of libresine or KISS FFT are licensed under the Do What The Fuck You Want To Public License version 2. See COPYING.WTFPL.txt.
 
 When libresine is compiled or linked against FFTW, either statically or dynamically, the combined binary falls under the terms of the GNU General Public License version 2 or optionally any later version, as dictated by the FFTW license. 
 When built using native routines, but not FFTW, the work remains under the LGPL version 2.
