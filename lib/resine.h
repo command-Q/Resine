@@ -49,12 +49,15 @@ typedef rsn_spectrum* 	rsn_spectra;
 /* Premultiplied coefficient data */
 typedef rsn_spectrum** 	rsn_wisdom;
 
-#define RSN_TRANSFORM_NONE 		(-1)
-#define RSN_TRANSFORM_NATIVE 	0
+#define RSN_TRANSFORM_NONE   (-1)
+#define RSN_TRANSFORM_NATIVE   0
+#define RSN_TRANSFORM_FFTW     1
+#define RSN_TRANSFORM_KISS     2
 
 #if HAS_FFTW
-#	define	RSN_TRANSFORM_FFTW		1
 #	define	RSN_TRANSFORM_DEFAULT	RSN_TRANSFORM_FFTW
+#elif HAS_KISS
+#	define	RSN_TRANSFORM_DEFAULT	RSN_TRANSFORM_KISS
 #else
 #	define	RSN_TRANSFORM_DEFAULT	RSN_TRANSFORM_NATIVE
 #endif
