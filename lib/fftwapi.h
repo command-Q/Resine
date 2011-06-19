@@ -46,8 +46,6 @@
 #		define rsn_fftw_cleanup				fftw_cleanup
 #		define rsn_fftw_plan_with_nthreads	fftw_plan_with_nthreads
 #	endif
-#else
-#	pragma message("NOTICE: Compiling without FFTW support; native transform functions will be used. These are VERY slow!")
 #endif
 
 #endif
