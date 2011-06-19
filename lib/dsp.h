@@ -15,6 +15,7 @@
 
 #if RSN_PRECISION == SINGLE
 #	define	rsn_cos			cosf
+#	define	rsn_sin			sinf
 #	define	rsn_sqrt		sqrtf
 #	define	rsn_fabs		fabsf
 #	define	rsn_log			logf
@@ -22,6 +23,7 @@
 #	define	rsn_copysign	copysignf
 #elif RSN_PRECISION == QUADRUPLE
 #	define	rsn_cos			cosl
+#	define	rsn_sin			sinl
 #	define	rsn_sqrt		sqrtl
 #	define	rsn_fabs		fabsl
 #	define	rsn_log			logl
@@ -29,6 +31,7 @@
 #	define	rsn_copysign	copysignl
 #else
 #	define	rsn_cos			cos
+#	define	rsn_sin			sin
 #	define	rsn_sqrt		sqrt
 #	define	rsn_fabs		fabs
 #	define	rsn_log			log
