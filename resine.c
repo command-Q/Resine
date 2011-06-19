@@ -25,9 +25,14 @@ int main(int argc, char **argv) {
 			   "\t©2010-2011 command-Q.org\n"
 			   "\tVersion %s\n"
 			   "\t%s precision configuration (%zu byte float).\n"
+			   "\tCompiled with backends: native"
 #if HAS_FFTW
-			   "\tCompiled with FFTW support.\n"
+			   ", FFTW"
 #endif
+#if HAS_KISS
+			   ", KISS FFT"
+#endif
+			   ".\n"
 			   "\n"
 			   "Usage: resine [options] infile outfile\n"
 			   "\n"
@@ -52,6 +57,9 @@ int main(int argc, char **argv) {
 			   "\t        \t\t- 0: Native (SLOW)\n"
 #if HAS_FFTW
 			   "\t        \t\t- 1: FFTW\n"
+#endif
+#if HAS_KISS
+			   "\t        \t\t- 2: KISS FFT\n"
 #endif
 			   "\t-S <int>\t Scaling method [%d]\n"
 			   "\t        \t\t- 0: Standard\n"
