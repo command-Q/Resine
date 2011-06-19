@@ -17,7 +17,7 @@ While the C implementation is new, the initial concept and a Java proof-of-conce
 See the roadmap below for a list of currently known issues.
 
 ###Implementation
-Currently, libresine supports two ways of computing the DFT: a set of (very slow) native functions, and [FFTW](http://www.fftw.org/). More interfaces are planned (see the roadmap), though the bar is rather high for mixed-radix, arbitrary dimension FFT libraries. Available interfaces are determined at compile time and toggled in the provided Makefile. For client implementations, the interface used is abstracted behind a single integer field in Resine's info struct.
+Currently, libresine supports three backends for computing the DCT: a set of (very slow) native functions, [KISS FFT](http://kissfft.sourceforge.net/), and [FFTW](http://www.fftw.org/). Available interfaces are determined at compile time and toggled in the provided Makefile. For client implementations, the interface used is abstracted behind a single integer field in Resine's info struct.
 
 For client applications, there are two primary data structures to consider: `rsn_info` and `rsn_data`, of which only the former is vital to produce a working application.
 
@@ -35,7 +35,6 @@ That said, given an image "img" in png_bytepp/JSAMPIMAGE/rsn_image format, dimen
 ###Roadmap
 ####libresine
 * The notion of allocation greed and a self-contained image data structure will likely be abandoned in favor of transform algorithms that scale on the fly. Not only will this markedly improve the abysmal performance of the native transforms, it will remove the need for memset, whose behavior is undefined for floating point types.
-* Kiss FFT support is a high priority, as it provides a faster alternative to the native functions while retaining LGPL compatibility.
 * The FFTW guru interface should be evaluated as an alternative to the present API calls.
 * At present the native transforms are so unoptimized that they are essentially only included for completeness' sake. A good first step would be a working row-column inverse transform, followed by threading support. A mixed-radix Cooley-Tukey implementation is a nice dream, likewise for SIMD, assembly, or GPGPU optimizations.
 * The current incarnation of the algorithm is its most basic -- it lacks any kind of windowing or other interesting modifications to the frequency domain such as artificial high frequency grain.
@@ -49,6 +48,6 @@ That said, given an image "img" in png_bytepp/JSAMPIMAGE/rsn_image format, dimen
 * Resine supports building on multiple platforms, but this hasn't been thoroughly tested and the script may need to be tweaked.
 
 ###Building
-To build Resine, simply edit the relevant portions of the included makefile. Current build options include whether to build with FFTW support, multithreading, and the floating point precision. 4, 8, and 16 byte floats are supported throughout the lib, and the correct precision FFTW will be linked as well.
+To build Resine, simply edit the relevant portions of the included makefile. Current build options include whether to build with FFTW and KISS FFT support, multithreading, and the floating point precision. 4, 8, and 16 byte floats are supported throughout the lib, and the correct precision FFTW will be linked as well.
 
 The resine commandline application depends on a recent version of [libjpeg](http://www.ijg.org/) and [libpng](http://www.libpng.org/) to read/write images.
