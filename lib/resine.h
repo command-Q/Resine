@@ -17,7 +17,7 @@
 
 #define RSN_VER_MAJOR 	0
 #define RSN_VER_MINOR 	9
-#define RSN_VER_MICRO 	3
+#define RSN_VER_MICRO 	4
 
 #define RSN_TOSTRING(s)		#s
 #define RSN_STRINGIFY(s)	RSN_TOSTRING(s)
