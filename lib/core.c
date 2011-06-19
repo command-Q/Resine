@@ -11,11 +11,26 @@
 #include "fftwapi.h"
 #include "dsp.h"
 
+#include <stdbool.h>
 #include <stdlib.h>
+
+#if HAS_KISS
+#	if RSN_PRECISION == QUAD
+#		pragma message("KISS FFT does not support long precision, KISS operations will use double instead.")
+#		define kiss_fft_scalar double
+#	else
+#		define kiss_fft_scalar rsn_frequency
+#	endif
+#include <kiss_fftndr.h>
+#endif
 
 /* Methods here should be either public or fully local, so no separate private header */
 void rsn_decompose_native(rsn_info,rsn_datap);
 void rsn_recompose_native(rsn_info,rsn_datap);
+#if HAS_KISS
+void rsn_decompose_kiss(rsn_info,rsn_datap);
+void rsn_recompose_kiss(rsn_info,rsn_datap);
+#endif
 #if HAS_FFTW
 void rsn_decompose_fftw(rsn_info,rsn_datap);
 void rsn_recompose_fftw(rsn_info,rsn_datap);
@@ -65,6 +80,9 @@ void rsn_decompose(rsn_info info, rsn_datap data) {
 #if HAS_FFTW
 		case RSN_TRANSFORM_FFTW:rsn_decompose_fftw_2d(info,data);	break;
 #endif
+#if HAS_KISS
+		case RSN_TRANSFORM_KISS:rsn_decompose_kiss(info,data);		break;
+#endif
 		default:				rsn_decompose_native(info,data);	break;
 	}
 	
@@ -81,6 +99,9 @@ void rsn_recompose(rsn_info info, rsn_datap data) {
 #if HAS_FFTW
 		case RSN_TRANSFORM_FFTW:rsn_recompose_fftw_2d(info,data);	break;
 #endif
+#if HAS_KISS
+		case RSN_TRANSFORM_KISS:rsn_recompose_kiss(info,data);		break;
+#endif
 		default:				rsn_recompose_native(info,data);	break;
 	}
 	
@@ -95,6 +116,94 @@ void rsn_decompose_native(rsn_info info, rsn_datap data) {
 void rsn_recompose_native(rsn_info info, rsn_datap data) {
 	rsn_idct(info.channels,info.height_s,info.width_s,data->freq_image_s,data->image_s);
 }
+
+/* KissFFT transform functions */
+#if HAS_KISS
+void rsn_decompose_kiss(rsn_info info, rsn_datap data) {
+	kiss_fftndr_cfg cfg = kiss_fftndr_alloc((int[]){info.height*2,info.width*2},2,false,NULL,NULL);
+	kiss_fft_scalar* mirrored = malloc(sizeof(kiss_fft_scalar)*info.height*2*info.width*2);
+	kiss_fft_cpx* cpxF = malloc(sizeof(kiss_fft_cpx)*(info.width+1)*info.height*2);
+
+	/* Shift is a simple factorization of
+		e^(-I*PI*n / 2N) * e^(-I*PI*m / 2M)
+	 */
+	kiss_fft_scalar EXP = -M_PI/(2.0*info.width*info.height);
+
+	for(int z = 0; z < info.channels; z++) {
+		for(int y = 0; y < info.height; y++) {
+			for(int x = 0; x < info.width; x++) {
+				mirrored[y*info.width*2+x] = data->image[y][x*info.channels+z];
+				mirrored[y*info.width*2+x+info.width] = data->image[y][(info.width-1-x)*info.channels+z];
+			}
+			memcpy(mirrored + (info.height*2-1-y)*info.width*2,mirrored + y*info.width*2,sizeof(kiss_fft_scalar)*info.width*2);
+		}
+
+		kiss_fftndr(cfg,mirrored,cpxF);
+
+		for(int y = 0; y < info.height; y++)
+			for(int x = 0; x < info.width; x++)
+				data->freq_image[z*info.height*info.width+y*info.width+x] = 
+				cpxF[y*(info.width+1)+x].r * rsn_cos(EXP*(x*info.width+y*info.height)) - 
+				cpxF[y*(info.width+1)+x].i * rsn_sin(EXP*(x*info.width+y*info.height));
+//In terms of C99 complex
+//				creal((cpxF[y*(info.width+1)+x].r + I*cpxF[y*(info.width+1)+x].i) * cexp(I*(EXP*(x*info.width+y*info.height))));
+
+	}
+	free(cpxF);
+	free(mirrored);
+	free(cfg);
+}
+
+void rsn_recompose_kiss(rsn_info info, rsn_datap data) {
+	kiss_fftndr_cfg cfg = kiss_fftndr_alloc((int[]){info.height_s*2,info.width_s*2},2,true,NULL,NULL);
+	kiss_fft_cpx* cpxF = malloc(sizeof(kiss_fft_cpx)*(info.width_s+1)*info.height_s*2);
+	kiss_fft_scalar* mirrored = malloc(sizeof(kiss_fft_scalar)*info.height_s*2*info.width_s*2);
+
+	// pre-zero nyquist
+	for(int y = 0; y < info.height_s*2; y++)
+		cpxF[y*(info.width_s+1)+info.width_s] = (kiss_fft_cpx){0};
+	for(int x = 0; x < info.width_s; x++)
+		cpxF[info.height_s*(info.width_s+1)+x] = (kiss_fft_cpx){0};
+
+	/* Shift:
+		e^(I*PI*n / 2N) * e^(I*PI*m / 2M)
+	 */
+	kiss_fft_scalar EXP = M_PI/(2.0*info.width_s*info.height_s);
+	rsn_frequency* coeff = data->freq_image_s; // iterate for infinitesimal speedup
+
+	for(int z = 0; z < info.channels; z++) {
+		for(int x = 0; x < info.width_s; x++,coeff++)
+			cpxF[x] = (kiss_fft_cpx) {
+				*coeff * rsn_cos(EXP*(x*info.width_s)),
+				*coeff * rsn_sin(EXP*(x*info.width_s))
+			};
+		for(int y = 1; y < info.height_s; y++)
+			for(int x = 0; x < info.width_s; x++,coeff++) {
+				// Un-shift the upper-left half of the spectrum (DCT portion)
+				cpxF[y*(info.width_s+1)+x] = (kiss_fft_cpx) {
+					*coeff * rsn_cos(EXP*(x*info.width_s+y*info.height_s)),
+					*coeff * rsn_sin(EXP*(x*info.width_s+y*info.height_s))
+				};
+				// Re-create the lower-left half. The entire right side is reconstructed by KISS for real transforms.
+				cpxF[(info.height_s*2-y)*(info.width_s+1)+x] = (kiss_fft_cpx) {
+					*coeff * -rsn_cos(EXP*(x*info.width_s+(info.height_s*2-y)*info.height_s)),
+					*coeff * -rsn_sin(EXP*(x*info.width_s+(info.height_s*2-y)*info.height_s))
+				};
+			}
+
+		kiss_fftndri(cfg,cpxF,mirrored);
+
+		for(int y = 0; y < info.height_s; y++)
+			for(int x = 0; x < info.width_s; x++) {
+				mirrored[y*info.width_s*2+x] *= 0.5/rsn_sqrt(info.width*info.height);
+				data->image_s[y][x*info.channels+z] = mirrored[y*info.width_s*2+x] > 255 ? 255 : mirrored[y*info.width_s*2+x] < 0 ? 0 : round(mirrored[y*info.width_s*2+x]);
+			}
+	}
+	free(mirrored);
+	free(cpxF);
+	free(cfg);
+}
+#endif
 
 /* FFTW transform functions */
 #if HAS_FFTW
@@ -131,8 +240,6 @@ void rsn_recompose_fftw(rsn_info info, rsn_datap data) {
 														round(output[z*info.height_s*info.width_s+y*info.width_s+x]);
 	rsn_fftw_free(output);
 }
-
-
 
 void rsn_decompose_fftw_2d(rsn_info info, rsn_datap data) {
 	int z,y,x;
@@ -185,7 +292,6 @@ void rsn_recompose_fftw_2d(rsn_info info, rsn_datap data) {
 				data->image_s[y][x*info.channels+z] =	planes[z][y*info.width_s+x] > 255 ? 255 : planes[z][y*info.width_s+x] < 0 ? 0 :
 														round(planes[z][y*info.width_s+x]);
 			}
-
 	rsn_free_array(info.config.transform,info.channels,(void***)&planes);
 }
 #endif
@@ -208,6 +314,11 @@ void rsn_scale_standard(rsn_info info, rsn_datap data) {
 	rsn_frequency scale;
 #ifdef HAS_FFTW // This is so stupid
 	if(info.config.transform == RSN_TRANSFORM_FFTW)
+		scale = 0.5/rsn_sqrt(info.width*info.height);
+	else
+#endif
+#ifdef HAS_KISS
+	if(info.config.transform == RSN_TRANSFORM_KISS)
 		scale = 0.5/rsn_sqrt(info.width*info.height);
 	else
 #endif
