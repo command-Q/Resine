@@ -4,3 +4,5 @@ Sources included in this package but not part of libresine are licensed under th
 
 When libresine is compiled or linked against FFTW, either statically or dynamically, the combined binary falls under the terms of the GNU General Public License version 2 or optionally any later version, as dictated by the FFTW license. 
 When built using native routines, but not FFTW, the work remains under the LGPL version 2.
+
+It is the author's interpretation that the terms and protections provided by the LGPL for dynamic linking apply equally to static linking. In short, the LGPL should not overrule the license of the combined work, but applies only to the resine object files being linked.
