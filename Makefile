@@ -52,9 +52,6 @@ ifeq ($(HAS_FFTW),1)
 		STATICLDPROJ += $(incl_libdir)/libfftw3_threads.a 
 	endif
 endif
-ifeq ($(THREADED),1)
-	_LDFLAGS += -lpthread
-endif
 
 ifeq ($(ARCH),X86_64)
 	_LDFLAGS += -fPIC
