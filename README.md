@@ -35,7 +35,6 @@ That said, given an image "img" in png_bytepp/JSAMPIMAGE/rsn_image format, dimen
 ###Roadmap
 ####libresine
 * The notion of allocation greed and a self-contained image data structure will likely be abandoned in favor of transform algorithms that scale on the fly. Not only will this markedly improve the abysmal performance of the native transforms, it will remove the need for memset, whose behavior is undefined for floating point types.
-* The FFTW guru interface should be evaluated as an alternative to the present API calls.
 * At present the native transforms are so unoptimized that they are essentially only included for completeness' sake. Potential improvements include threading, Fast DCT, and SIMD, assembly, and GPGPU optimizations.
 * The current incarnation of the algorithm is its most basic -- it lacks any kind of windowing or other interesting modifications to the frequency domain such as artificial high frequency grain.
 

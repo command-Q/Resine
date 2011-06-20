@@ -270,57 +270,53 @@ void rsn_recompose_fftw(rsn_info info, rsn_datap data) {
 }
 
 void rsn_decompose_fftw_2d(rsn_info info, rsn_datap data) {
-	int z,y,x;
-	rsn_spectra planes = rsn_malloc_array(info.config,sizeof(rsn_frequency),info.channels,info.height*info.width);
-
-	for(z = 0; z < info.channels; z++)
-		for(y = 0; y < info.height; y++) 
-			for(x = 0; x < info.width; x++)
-				planes[z][y*info.width+x] = data->image[y][x*info.channels+z];
-
+	const int dims[2] = {info.height,info.width};
+	fftw_r2r_kind kind[info.channels];
+	for(int z = 0; z < info.channels; z++) kind[z] = FFTW_REDFT10;
 #if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
-
-	rsn_fftw_plan p = rsn_fftw_plan_r2r_2d(info.height,info.width,planes[0],planes[0],FFTW_REDFT10,FFTW_REDFT10,FFTW_ESTIMATE); //FFTW_MEASURE
-	rsn_fftw_execute(p);	
-	for(z = 1; z < info.channels; z++)
-		rsn_fftw_execute_r2r(p,planes[z],planes[z]);
-	rsn_fftw_destroy_plan(p);
 	
-	for(z = 0; z < info.channels; z++)
-		for(y = 0; y < info.height; y++) 
-			for(x = 0; x < info.width; x++)
-				data->freq_image[z*info.height*info.width+y*info.width+x] = planes[z][y*info.width+x];
+	rsn_fftw_plan p = fftw_plan_many_r2r(2,dims,info.channels,
+										 data->freq_image,dims,1,info.width*info.height,
+										 data->freq_image,dims,1,info.width*info.height,
+										 kind,FFTW_ESTIMATE);
 
-	rsn_free_array(info.config.transform,info.channels,(void***)&planes);
+	rsn_spectrum fptr = data->freq_image;
+	for(int z = 0; z < info.channels; z++)
+		for(int y = 0; y < info.height; y++)
+			for(int x = 0; x < info.width; x++,fptr++)
+				*fptr = data->image[y][x*info.channels+z];
+
+	rsn_fftw_execute(p);
+	rsn_fftw_destroy_plan(p);
 }
 
 void rsn_recompose_fftw_2d(rsn_info info, rsn_datap data) {
-	int z,y,x;
-	rsn_spectra planes = rsn_malloc_array(info.config,sizeof(rsn_frequency),info.channels,info.height_s*info.width_s);
-	for(z = 0; z < info.channels; z++)
-		for(y = 0; y < info.height_s; y++)
-			for(x = 0; x < info.width_s; x++)
-				planes[z][y*info.width_s+x] = data->freq_image_s[z*info.height_s*info.width_s+y*info.width_s+x];
-	
+	const int dims[2] = {info.height_s,info.width_s};
+	fftw_r2r_kind kind[info.channels];
+	for(int z = 0; z < info.channels; z++) kind[z] = FFTW_REDFT01;
 #if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
-	rsn_fftw_plan ip = rsn_fftw_plan_r2r_2d(info.height_s,info.width_s,planes[0],planes[0],FFTW_REDFT01,FFTW_REDFT01,FFTW_ESTIMATE); //FFTW_MEASURE
-	rsn_fftw_execute(ip);	
-	for(z = 1; z < info.channels; z++)
-		rsn_fftw_execute_r2r(ip,planes[z],planes[z]);
-	rsn_fftw_destroy_plan(ip);
+	rsn_spectrum f = rsn_fftw_malloc(sizeof(rsn_frequency)*info.channels*info.height_s*info.width_s);
 
-	for(z = 0; z < info.channels; z++)
-		for(y = 0; y < info.height_s; y++)
-			for(x = 0; x < info.width_s; x++) {
-				planes[z][y*info.width_s+x] /= 4*info.width_s*info.height_s;
-				data->image_s[y][x*info.channels+z] =	planes[z][y*info.width_s+x] > 255 ? 255 : planes[z][y*info.width_s+x] < 0 ? 0 :
-														round(planes[z][y*info.width_s+x]);
+	rsn_fftw_plan p = fftw_plan_many_r2r(2,dims,info.channels,
+										 data->freq_image_s,dims,1,info.width_s*info.height_s,
+										 f,dims,1,info.width_s*info.height_s,
+										 kind,FFTW_ESTIMATE);
+
+	rsn_fftw_execute(p);
+	rsn_fftw_destroy_plan(p);
+
+	rsn_spectrum fptr = f;
+	for(int z = 0; z < info.channels; z++)
+		for(int y = 0; y < info.height_s; y++)
+			for(int x = 0; x < info.width_s; x++, fptr++) {
+				*fptr /= 4*info.width_s*info.height_s;
+				data->image_s[y][x*info.channels+z] = *fptr > 255 ? 255 : *fptr < 0 ? 0 : round(*fptr);
 			}
-	rsn_free_array(info.config.transform,info.channels,(void***)&planes);
+	rsn_fftw_free(f);
 }
 #endif
 
