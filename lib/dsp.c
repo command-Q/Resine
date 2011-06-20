@@ -89,43 +89,55 @@ void rsn_idct(int L, int M, int N, rsn_spectrum F, rsn_image f) {
 
 void rsn_dct_rowcol(int L, int M, int N, rsn_image f, rsn_spectrum F) {
 	rsn_spectrum tmp = malloc(sizeof(rsn_frequency)*M*N);
+	int t_len = N > M ? N : M;
+	rsn_spectrum twiddles = malloc(sizeof(rsn_frequency)*t_len*t_len);
+	for(int t1 = 0; t1 < t_len; t1++)
+		for(int t2 = 0; t2 < t_len; t2++)
+			twiddles[t1*t_len+t2] = rsn_cos(M_PI/t_len * (t2+0.5) * t1) * 2;
+
 	for(int z = 0; z < L; z++) {
 		for(int row = 0; row < M; row++)
 			for(int u = 0; u < N; u++) {
 				tmp[row*N+u] = 0.0;
 				for(int i = 0; i < N; i++)
-					tmp[row*N+u] += f[row][i*L+z] * rsn_cos(M_PI/N * (i+0.5) * u);
+					tmp[row*N+u] += f[row][i*L+z] * twiddles[u*t_len+i];
 			}
 		for(int col = 0; col < N; col++)
-			for(int v = 0; v < M; v++) {
+			for(int v = 0; v < M; v++)
 				for(int j = 0; j < M; j++)
-					F[z*M*N+v*N+col] += tmp[j*N+col] * rsn_cos(M_PI/M * (j+0.5) * v);
-				F[z*M*N+v*N+col] *= 4; // Correspond to DFT
-			}		
+					F[z*M*N+v*N+col] += tmp[j*N+col] * twiddles[v*t_len+j];
 	}
 	free(tmp);
+	free(twiddles);
 }
 
 void rsn_idct_rowcol(int L, int M, int N, rsn_spectrum F, rsn_image f) {
 	rsn_spectrum tmp = malloc(sizeof(rsn_frequency)*M*N);
 	rsn_frequency s;
+	int t_len = N > M ? N : M;
+	rsn_spectrum twiddles = malloc(sizeof(rsn_frequency)*t_len*(t_len-1));
+	for(int t1 = 0; t1 < t_len; t1++)
+		for(int t2 = 1; t2 < t_len; t2++)
+			twiddles[t1*(t_len-1)+t2-1] = rsn_cos(M_PI/t_len * (t1+0.5) * t2);
+
 	for(int z = 0; z < L; z++) {
 		for(int row = 0; row < M; row++)
 			for(int i = 0; i < N; i++) {
 				tmp[row*N+i] = F[z*M*N+row*N+0]/2;
 				for(int u = 1; u < N; u++)
-					tmp[row*N+i] += F[z*M*N+row*N+u] * rsn_cos(M_PI/N * (i+0.5) * u);
+					tmp[row*N+i] += F[z*M*N+row*N+u] * twiddles[i*(t_len-1)+u-1];
 			}
 		for(int col = 0; col < N; col++)
 			for(int j = 0; j < M; j++) {
 				s = tmp[0*N+col]/2;
 				for(int v = 1; v < M; v++)
-					s += tmp[v*N+col] * rsn_cos(M_PI/M * (j+0.5) * v);
+					s += tmp[v*N+col] * twiddles[j*(t_len-1)+v-1];
 				s /= N*M;
 				f[j][col*L+z] = s > 255 ? 255 : s < 0 ? 0 : round(s);
 			}
 	}
 	free(tmp);
+	free(twiddles);
 }
 
 rsn_image spectrogram(int L, int M, int N, rsn_spectrum F) {
