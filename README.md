@@ -38,7 +38,6 @@ That said, given an image "img" in png_bytepp/JSAMPIMAGE/rsn_image format, dimen
 * The FFTW guru interface should be evaluated as an alternative to the present API calls.
 * At present the native transforms are so unoptimized that they are essentially only included for completeness' sake. Potential improvements include threading, Fast DCT, and SIMD, assembly, and GPGPU optimizations.
 * The current incarnation of the algorithm is its most basic -- it lacks any kind of windowing or other interesting modifications to the frequency domain such as artificial high frequency grain.
-* The different transform types are not orthogonal -- normalization differs between FFTW and the native functions and is treated differently. This is a sticky issue to standardize on without bringing unnecessary multiplications.
 
 ####Applications
 * Several half-baked sample applications didn't make it into this commit, including a barebones profiling application, a program to composite bitmap images into another image's frequency space, and a basic video scaler using libavcodec.
