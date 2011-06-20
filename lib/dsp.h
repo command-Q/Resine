@@ -48,6 +48,6 @@ void rsn_idct(int,int,int,rsn_spectrum,rsn_image);
 void rsn_dct_direct(int,int,int,rsn_image,rsn_spectrum);
 /* Row Column method */
 void rsn_dct_rowcol(int,int,int,rsn_image,rsn_spectrum);
-void rsn_idct_rowcol(int,int,int,rsn_spectrum,rsn_image); //FIXME
+void rsn_idct_rowcol(int,int,int,rsn_spectrum,rsn_image);
 
 #endif

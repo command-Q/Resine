@@ -88,84 +88,43 @@ void rsn_idct(int L, int M, int N, rsn_spectrum F, rsn_image f) {
 }
 
 void rsn_dct_rowcol(int L, int M, int N, rsn_image f, rsn_spectrum F) {
-	rsn_frequency NORM  = 2/rsn_sqrt(N*M);
-	rsn_frequency HNORM = 1/rsn_sqrt(N*M);
-	rsn_frequency NORM2 = 2/rsn_sqrt(2*N*M);
-	rsn_frequency PI_M  = M_PI / M;
-	rsn_frequency PI_N	= M_PI / N;
-	rsn_frequency HPI_M = M_PI / (2*M);
-	rsn_frequency HPI_N = M_PI / (2*N);
-	rsn_frequency PI_Mv, PI_Nu, HPI_Mv, HPI_Nu;
-	rsn_frequency wisdom[M][N];
-	rsn_spectrum tmp = malloc(sizeof(rsn_frequency)*L*M*N);
-	int z,v,u,j,i;
-	for(v = 0; v < M; v++)
-		for(u = 0, PI_Nu = 0, HPI_Nu = 0; u < N; u++, PI_Nu += PI_N, HPI_Nu += HPI_N) {
-			for(i = 0; i < N; i++) {
-				if(!u)	wisdom[v][i] = 1;
-				else	wisdom[v][i] = rsn_cos(i*PI_Nu+HPI_Nu);
-				tmp[v*N+u] += wisdom[v][i] * f[v][i*L];				
+	rsn_spectrum tmp = malloc(sizeof(rsn_frequency)*M*N);
+	for(int z = 0; z < L; z++) {
+		for(int row = 0; row < M; row++)
+			for(int u = 0; u < N; u++) {
+				tmp[row*N+u] = 0.0;
+				for(int i = 0; i < N; i++)
+					tmp[row*N+u] += f[row][i*L+z] * rsn_cos(M_PI/N * (i+0.5) * u);
 			}
-			for(z = 1; z < L; z++)
-				for(i = 0; i < N; i++)
-					tmp[z*N*M+v*N+u] += wisdom[v][i] * f[v][i*L+z];				
-		}
-	for(u = 0; u < N; u++)
-		for(v = 0, PI_Mv = 0, HPI_Mv = 0; v < M; v++, PI_Mv += PI_M, HPI_Mv += HPI_M) {
-			for(j = 0; j < M; j++) {
-				if(!(v+u))	wisdom[j][0] = HNORM;
-				else if(!v) wisdom[j][u] = NORM2;
-				else if(!u)	wisdom[j][0] = NORM2 * rsn_cos(j*PI_Mv+HPI_Mv);
-				else		wisdom[j][u] = NORM * rsn_cos(j*PI_Mv+HPI_Mv);
-				F[v*N+u]+= wisdom[j][u] * tmp[j*N+u];				
-			}
-			for(z = 1; z < L; z++)
-				for(j = 0; j < M; j++)
-					F[z*N*M+v*N+u] += wisdom[j][u] * tmp[z*N*M+j*N+u];
-		}
+		for(int col = 0; col < N; col++)
+			for(int v = 0; v < M; v++) {
+				for(int j = 0; j < M; j++)
+					F[z*M*N+v*N+col] += tmp[j*N+col] * rsn_cos(M_PI/M * (j+0.5) * v);
+				F[z*M*N+v*N+col] *= 4; // Correspond to DFT
+			}		
+	}
 	free(tmp);
 }
-void rsn_idct_rowcol(int L, int M, int N, rsn_spectrum F, rsn_image f) {
-	rsn_frequency NORM  = 2/rsn_sqrt(N*M);
-	rsn_frequency HNORM = 1/rsn_sqrt(N*M);
-	rsn_frequency NORM2 = 2/rsn_sqrt(2*N*M);
-	rsn_frequency PI_M  = M_PI / M;
-	rsn_frequency PI_N	= M_PI / N;
-	rsn_frequency HPI_M = M_PI / (2*M);
-	rsn_frequency HPI_N = M_PI / (2*N);
-	rsn_frequency PI_Mv, PI_Nu, HPI_Mv, HPI_Nu;
-	rsn_frequency wisdom[M][N];
-	rsn_frequency s;
-	rsn_spectrum tmp = malloc(sizeof(rsn_frequency)*L*M*N);
-	int z,v,u,j,i;
 
-	for(v = 0; v < M; v++)
-		for(u = 0, PI_Nu = 0, HPI_Nu = 0; u < N; u++, PI_Nu += PI_N, HPI_Nu += HPI_N) {
-			for(i = 0; i < N; i++) {
-				if(!i)	wisdom[v][0] = 1;
-				else	wisdom[v][i] = rsn_cos((u+0.5)*i*PI_N);
-				tmp[v*N+u] += wisdom[v][i] * F[v*N+i];				
+void rsn_idct_rowcol(int L, int M, int N, rsn_spectrum F, rsn_image f) {
+	rsn_spectrum tmp = malloc(sizeof(rsn_frequency)*M*N);
+	rsn_frequency s;
+	for(int z = 0; z < L; z++) {
+		for(int row = 0; row < M; row++)
+			for(int i = 0; i < N; i++) {
+				tmp[row*N+i] = F[z*M*N+row*N+0]/2;
+				for(int u = 1; u < N; u++)
+					tmp[row*N+i] += F[z*M*N+row*N+u] * rsn_cos(M_PI/N * (i+0.5) * u);
 			}
-			for(z = 1; z < L; z++)
-				for(i = 0; i < N; i++)
-					tmp[z*N*M+v*N+u] += wisdom[v][i] * F[z*N*M+v*N+i];				
-		}
-	for(u = 0; u < N; u++)
-		for(v = 0, PI_Mv = 0, HPI_Mv = 0; v < M; v++, PI_Mv += PI_M, HPI_Mv += HPI_M) {
-			for(j = 0, s = 0; j < M; j++) {
-				if(!(j+u))	wisdom[0][0] = HNORM;
-				else if(!j) wisdom[0][u] = NORM2;
-				else if(!u)	wisdom[j][0] = NORM2 * rsn_cos((v+0.5)*j*PI_M);
-				else		wisdom[j][u] = NORM * rsn_cos((v+0.5)*j*PI_M);
-				s += wisdom[j][u] * tmp[j*N+u];				
+		for(int col = 0; col < N; col++)
+			for(int j = 0; j < M; j++) {
+				s = tmp[0*N+col]/2;
+				for(int v = 1; v < M; v++)
+					s += tmp[v*N+col] * rsn_cos(M_PI/M * (j+0.5) * v);
+				s /= N*M;
+				f[j][col*L+z] = s > 255 ? 255 : s < 0 ? 0 : round(s);
 			}
-			f[v][u*L] = s > 255 ? 255 : s < 0 ? 0 : round(s);
-			for(z = 1; z < L; z++) {
-				for(j = 0, s = 0; j < M; j++)
-					s += wisdom[j][u] * tmp[z*N*M+j*N+u];
-				f[v][u*L+z] = s > 255 ? 255 : s < 0 ? 0 : round(s);
-			}
-		}
+	}
 	free(tmp);
 }
 

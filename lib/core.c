@@ -114,7 +114,7 @@ void rsn_decompose_native(rsn_info info, rsn_datap data) {
 }
 
 void rsn_recompose_native(rsn_info info, rsn_datap data) {
-	rsn_idct(info.channels,info.height_s,info.width_s,data->freq_image_s,data->image_s);
+	rsn_idct_rowcol(info.channels,info.height_s,info.width_s,data->freq_image_s,data->image_s);
 }
 
 /* KissFFT transform functions */
@@ -339,19 +339,8 @@ void rsn_scale(rsn_info info, rsn_datap data) {
 
 void rsn_scale_standard(rsn_info info, rsn_datap data) {
 	int z,y,x;
-	rsn_frequency scale;
-#ifdef HAS_FFTW // This is so stupid
-	if(info.config.transform == RSN_TRANSFORM_FFTW)
-		scale = (info.width_s*info.height_s)/(rsn_frequency)(info.width*info.height);
-	else
-#endif
-#ifdef HAS_KISS
-	if(info.config.transform == RSN_TRANSFORM_KISS)
-		scale = (info.width_s*info.height_s)/(rsn_frequency)(info.width*info.height);
-	else
-#endif
-		scale = rsn_sqrt((info.width_s*info.height_s)/(rsn_frequency)(info.width*info.height));
-	
+	rsn_frequency scale = (info.width_s*info.height_s)/(rsn_frequency)(info.width*info.height);
+
 	int ylim = info.height < info.height_s ? info.height : info.height_s;
 	int xlim = info.width < info.width_s ? info.width : info.width_s;
 	for(z = 0; z < info.channels; z++)
