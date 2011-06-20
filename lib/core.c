@@ -123,11 +123,18 @@ void rsn_decompose_kiss(rsn_info info, rsn_datap data) {
 	kiss_fftndr_cfg cfg = kiss_fftndr_alloc((int[]){info.height*2,info.width*2},2,false,NULL,NULL);
 	kiss_fft_scalar* mirrored = malloc(sizeof(kiss_fft_scalar)*info.height*2*info.width*2);
 	kiss_fft_cpx* cpxF = malloc(sizeof(kiss_fft_cpx)*(info.width+1)*info.height*2);
+	kiss_fft_cpx* shift_matrix = malloc(sizeof(kiss_fft_cpx)*(info.width+1)*info.height*2);
 
 	/* Shift is a simple factorization of
 		e^(-I*PI*n / 2N) * e^(-I*PI*m / 2M)
 	 */
 	kiss_fft_scalar EXP = -M_PI/(2.0*info.width*info.height);
+	for(int y = 0; y < info.height; y++)
+		for(int x = 0; x < info.width; x++)
+			shift_matrix[y*(info.width+1)+x] = (kiss_fft_cpx) {
+				rsn_cos(EXP*(x*info.width+y*info.height)), 
+				rsn_sin(EXP*(x*info.width+y*info.height))
+			};
 
 	for(int z = 0; z < info.channels; z++) {
 		for(int y = 0; y < info.height; y++) {
@@ -143,8 +150,8 @@ void rsn_decompose_kiss(rsn_info info, rsn_datap data) {
 		for(int y = 0; y < info.height; y++)
 			for(int x = 0; x < info.width; x++)
 				data->freq_image[z*info.height*info.width+y*info.width+x] = 
-				cpxF[y*(info.width+1)+x].r * rsn_cos(EXP*(x*info.width+y*info.height)) - 
-				cpxF[y*(info.width+1)+x].i * rsn_sin(EXP*(x*info.width+y*info.height));
+				cpxF[y*(info.width+1)+x].r * shift_matrix[y*(info.width+1)+x].r - 
+				cpxF[y*(info.width+1)+x].i * shift_matrix[y*(info.width+1)+x].i;
 //In terms of C99 complex
 //				creal((cpxF[y*(info.width+1)+x].r + I*cpxF[y*(info.width+1)+x].i) * cexp(I*(EXP*(x*info.width+y*info.height))));
 
@@ -157,6 +164,7 @@ void rsn_decompose_kiss(rsn_info info, rsn_datap data) {
 void rsn_recompose_kiss(rsn_info info, rsn_datap data) {
 	kiss_fftndr_cfg cfg = kiss_fftndr_alloc((int[]){info.height_s*2,info.width_s*2},2,true,NULL,NULL);
 	kiss_fft_cpx* cpxF = malloc(sizeof(kiss_fft_cpx)*(info.width_s+1)*info.height_s*2);
+	kiss_fft_cpx* shift_matrix = malloc(sizeof(kiss_fft_cpx)*(info.width_s+1)*info.height_s*2);
 	kiss_fft_scalar* mirrored = malloc(sizeof(kiss_fft_scalar)*info.height_s*2*info.width_s*2);
 
 	// pre-zero nyquist
@@ -171,23 +179,43 @@ void rsn_recompose_kiss(rsn_info info, rsn_datap data) {
 	kiss_fft_scalar EXP = M_PI/(2.0*info.width_s*info.height_s);
 	rsn_frequency* coeff = data->freq_image_s; // iterate for infinitesimal speedup
 
+	for(int x = 0; x < info.width_s; x++)
+		shift_matrix[x] = (kiss_fft_cpx) {
+			rsn_cos(EXP*(x*info.width_s)),
+			rsn_sin(EXP*(x*info.width_s))
+		};
+	for(int y = 1; y < info.height_s; y++)
+		for(int x = 0; x < info.width_s; x++) {
+			shift_matrix[y*(info.width_s+1)+x] = (kiss_fft_cpx) {
+				rsn_cos(EXP*(x*info.width_s+y*info.height_s)),
+				rsn_sin(EXP*(x*info.width_s+y*info.height_s))
+			};
+			shift_matrix[(info.height_s*2-y)*(info.width_s+1)+x] = (kiss_fft_cpx) {
+				-rsn_cos(EXP*(x*info.width_s+(info.height_s*2-y)*info.height_s)),
+				-rsn_sin(EXP*(x*info.width_s+(info.height_s*2-y)*info.height_s))
+			};
+		}
+
+	
 	for(int z = 0; z < info.channels; z++) {
 		for(int x = 0; x < info.width_s; x++,coeff++)
 			cpxF[x] = (kiss_fft_cpx) {
-				*coeff * rsn_cos(EXP*(x*info.width_s)),
-				*coeff * rsn_sin(EXP*(x*info.width_s))
+				*coeff * shift_matrix[x].r,
+				*coeff * shift_matrix[x].i
 			};
 		for(int y = 1; y < info.height_s; y++)
 			for(int x = 0; x < info.width_s; x++,coeff++) {
 				// Un-shift the upper-left half of the spectrum (DCT portion)
+				kiss_fft_cpx shift = shift_matrix[y*(info.width_s+1)+x];
 				cpxF[y*(info.width_s+1)+x] = (kiss_fft_cpx) {
-					*coeff * rsn_cos(EXP*(x*info.width_s+y*info.height_s)),
-					*coeff * rsn_sin(EXP*(x*info.width_s+y*info.height_s))
+					*coeff * shift.r,
+					*coeff * shift.i
 				};
 				// Re-create the lower-left half. The entire right side is reconstructed by KISS for real transforms.
+				shift =  shift_matrix[(info.height_s*2-y)*(info.width_s+1)+x];
 				cpxF[(info.height_s*2-y)*(info.width_s+1)+x] = (kiss_fft_cpx) {
-					*coeff * -rsn_cos(EXP*(x*info.width_s+(info.height_s*2-y)*info.height_s)),
-					*coeff * -rsn_sin(EXP*(x*info.width_s+(info.height_s*2-y)*info.height_s))
+					*coeff * shift.r,
+					*coeff * shift.i
 				};
 			}
 
