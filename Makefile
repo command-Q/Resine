@@ -71,7 +71,7 @@ ifeq ($(SYS),MACOSX)
 else 
 	ifeq ($(SYS),MINGW)
 		DYLEXT = dll
-		SOFLAGS = -Wl,--out-implib,lib$(PROJECT).$(DYLEXT).a -Wl,--enable-auto-image-base
+		SOFLAGS = -shared -Wl,--out-implib,lib$(PROJECT).$(DYLEXT).a -Wl,--enable-auto-image-base
 		DYLIB = lib$(PROJECT)-$(VER).$(DYLEXT)
 		EXEEXT = .exe
 	else #linux
