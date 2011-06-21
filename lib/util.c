@@ -8,6 +8,8 @@
  */
 
 
+#include "resine.h"
+
 #include "fftwapi.h"
 
 #include <math.h>
