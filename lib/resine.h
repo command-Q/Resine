@@ -29,14 +29,14 @@ typedef rsn_line* 		rsn_image;
 
 #define SINGLE	1
 #define DOUBLE	2
-#define QUAD	4
+#define LONG	3
 
 #if RSN_PRECISION == SINGLE
 #	define RSN_PRECISION_STR "Single"
 #	define RSN_PRECISION_FORMAT	"f"
 typedef float 			rsn_frequency;
-#elif RSN_PRECISION == QUAD
-#	define RSN_PRECISION_STR "Quadruple"
+#elif RSN_PRECISION == LONG
+#	define RSN_PRECISION_STR "Long"
 #	define RSN_PRECISION_FORMAT	"Lf"
 typedef long double 	rsn_frequency;
 #else

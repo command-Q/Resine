@@ -23,7 +23,7 @@
 #		define rsn_fftw_plan				fftwf_plan
 #		define rsn_fftw_cleanup				fftwf_cleanup
 #		define rsn_fftw_plan_with_nthreads	fftwf_plan_with_nthreads
-#	elif RSN_PRECISION == QUAD
+#	elif RSN_PRECISION == LONG
 #		define rsn_fftw_malloc				fftwl_malloc
 #		define rsn_fftw_free				fftwl_free
 #		define rsn_fftw_plan_r2r_3d			fftwl_plan_r2r_3d

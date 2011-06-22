@@ -1,7 +1,7 @@
 ## BUILD CONFIGURATION ##
 HAS_FFTW ?= 1
 HAS_KISS ?= 1
-# Valid options are SINGLE, DOUBLE, or QUAD
+# Valid options are SINGLE, DOUBLE, or LONG
 PRECISION ?= DOUBLE
 THREADED ?= 0
 
@@ -44,7 +44,7 @@ ifeq ($(HAS_FFTW),1)
 	ifeq ($(PRECISION),SINGLE)
 		_LDFLAGS += -lfftw3f 
 		STATICLDPROJ = $(incl_libdir)/libfftw3f.a 
-	else ifeq ($(PRECISION),QUAD)
+	else ifeq ($(PRECISION),LONG)
 		_LDFLAGS += -lfftw3l
 		STATICLDPROJ = $(incl_libdir)/libfftw3l.a 
 	else 
