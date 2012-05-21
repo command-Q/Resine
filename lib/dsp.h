@@ -14,29 +14,29 @@
 #include <math.h>
 
 #if RSN_PRECISION == SINGLE
-#	define	rsn_cos			cosf
-#	define	rsn_sin			sinf
-#	define	rsn_sqrt		sqrtf
-#	define	rsn_fabs		fabsf
-#	define	rsn_log			logf
-#	define	rsn_pow			powf
-#	define	rsn_copysign	copysignf
+#	define rsn_cos      cosf
+#	define rsn_sin      sinf
+#	define rsn_sqrt     sqrtf
+#	define rsn_fabs     fabsf
+#	define rsn_log      logf
+#	define rsn_pow      powf
+#	define rsn_copysign copysignf
 #elif RSN_PRECISION == LONG
-#	define	rsn_cos			cosl
-#	define	rsn_sin			sinl
-#	define	rsn_sqrt		sqrtl
-#	define	rsn_fabs		fabsl
-#	define	rsn_log			logl
-#	define	rsn_pow			powl
-#	define	rsn_copysign	copysignl
+#	define rsn_cos      cosl
+#	define rsn_sin      sinl
+#	define rsn_sqrt     sqrtl
+#	define rsn_fabs     fabsl
+#	define rsn_log      logl
+#	define rsn_pow      powl
+#	define rsn_copysign copysignl
 #else
-#	define	rsn_cos			cos
-#	define	rsn_sin			sin
-#	define	rsn_sqrt		sqrt
-#	define	rsn_fabs		fabs
-#	define	rsn_log			log
-#	define	rsn_pow			pow
-#	define	rsn_copysign	copysign
+#	define rsn_cos      cos
+#	define rsn_sin      sin
+#	define rsn_sqrt     sqrt
+#	define rsn_fabs     fabs
+#	define rsn_log      log
+#	define rsn_pow      pow
+#	define rsn_copysign copysign
 #endif
 
 /* Canonical implementation of the i/DCT with (very) minor optimizations */

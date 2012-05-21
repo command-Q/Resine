@@ -15,39 +15,39 @@
 
 #include <stddef.h>
 
-#define RSN_VER_MAJOR 	0
-#define RSN_VER_MINOR 	9
-#define RSN_VER_MICRO 	4
+#define RSN_VER_MAJOR 0
+#define RSN_VER_MINOR 9
+#define RSN_VER_MICRO 4
 
-#define RSN_TOSTRING(s)		#s
-#define RSN_STRINGIFY(s)	RSN_TOSTRING(s)
-#define RSN_VERSION			RSN_STRINGIFY(RSN_VER_MAJOR.RSN_VER_MINOR.RSN_VER_MICRO)
+#define RSN_TOSTRING(s)  #s
+#define RSN_STRINGIFY(s) RSN_TOSTRING(s)
+#define RSN_VERSION      RSN_STRINGIFY(RSN_VER_MAJOR.RSN_VER_MINOR.RSN_VER_MICRO)
 
-typedef unsigned char	rsn_pel;
-typedef rsn_pel* 		rsn_line;
-typedef rsn_line* 		rsn_image;
+typedef unsigned char rsn_pel;
+typedef rsn_pel*      rsn_line;
+typedef rsn_line*     rsn_image;
 
-#define SINGLE	1
-#define DOUBLE	2
-#define LONG	3
+#define SINGLE 1
+#define DOUBLE 2
+#define LONG   3
 
 #if RSN_PRECISION == SINGLE
-#	define RSN_PRECISION_STR "Single"
-#	define RSN_PRECISION_FORMAT	"f"
-typedef float 			rsn_frequency;
+#	define RSN_PRECISION_STR    "Single"
+#	define RSN_PRECISION_FORMAT "f"
+typedef float rsn_frequency;
 #elif RSN_PRECISION == LONG
-#	define RSN_PRECISION_STR "Long"
-#	define RSN_PRECISION_FORMAT	"Lf"
-typedef long double 	rsn_frequency;
+#	define RSN_PRECISION_STR    "Long"
+#	define RSN_PRECISION_FORMAT "Lf"
+typedef long double rsn_frequency;
 #else
-#	define RSN_PRECISION_STR "Double"
-#	define RSN_PRECISION_FORMAT	"f"
-typedef double 			rsn_frequency;
+#	define RSN_PRECISION_STR    "Double"
+#	define RSN_PRECISION_FORMAT "f"
+typedef double rsn_frequency;
 #endif
-typedef rsn_frequency* 	rsn_spectrum;
-typedef rsn_spectrum* 	rsn_spectra;
+typedef rsn_frequency* rsn_spectrum;
+typedef rsn_spectrum*  rsn_spectra;
 /* Premultiplied coefficient data */
-typedef rsn_spectrum** 	rsn_wisdom;
+typedef rsn_spectrum** rsn_wisdom;
 
 #define RSN_TRANSFORM_NONE   (-1)
 #define RSN_TRANSFORM_NATIVE   0
@@ -55,36 +55,36 @@ typedef rsn_spectrum** 	rsn_wisdom;
 #define RSN_TRANSFORM_KISS     2
 
 #if HAS_FFTW
-#	define	RSN_TRANSFORM_DEFAULT	RSN_TRANSFORM_FFTW
+#	define RSN_TRANSFORM_DEFAULT RSN_TRANSFORM_FFTW
 #elif HAS_KISS
-#	define	RSN_TRANSFORM_DEFAULT	RSN_TRANSFORM_KISS
+#	define RSN_TRANSFORM_DEFAULT RSN_TRANSFORM_KISS
 #else
-#	define	RSN_TRANSFORM_DEFAULT	RSN_TRANSFORM_NATIVE
+#	define RSN_TRANSFORM_DEFAULT RSN_TRANSFORM_NATIVE
 #endif
 
-#define RSN_SCALING_STANDARD 		0
-#define RSN_SCALING_SMOOTH 			1
+#define RSN_SCALING_STANDARD 0
+#define RSN_SCALING_SMOOTH   1
 
-#define RSN_GREED_LEAN 				0
-#define RSN_GREED_PREALLOC 			1
-#define RSN_GREED_RETAIN 			2
-#define RSN_GREED_PREALLOC_RETAIN 	3
+#define RSN_GREED_LEAN            0
+#define RSN_GREED_PREALLOC        1
+#define RSN_GREED_RETAIN          2
+#define RSN_GREED_PREALLOC_RETAIN 3
 
 typedef struct {
-	int transform,scaling,verbosity,threads,greed;
+	int transform, scaling, verbosity, threads, greed;
 } rsn_config;
 
 typedef struct {
 	rsn_config config;
-	int channels,width,height,width_s,height_s;
+	int channels, width, height, width_s, height_s;
 } rsn_info;
-typedef rsn_info*	rsn_infop;
+typedef rsn_info* rsn_infop;
 
 typedef struct {
-	rsn_image		image,		image_s;
-	rsn_spectrum	freq_image, freq_image_s;
+	rsn_image    image,      image_s;
+	rsn_spectrum freq_image, freq_image_s;
 } rsn_data;
-typedef rsn_data*	rsn_datap;
+typedef rsn_data* rsn_datap;
 
 /* Returns the default configuration, suitable for most cases */
 rsn_config rsn_defaults();

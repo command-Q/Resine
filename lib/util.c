@@ -69,7 +69,7 @@ void* rsn_malloc(rsn_config config, size_t base, int multiplier) {
 		case RSN_TRANSFORM_FFTW:return memset(rsn_fftw_malloc(base*multiplier),0,base*multiplier);
 #endif
 		default:				return calloc(multiplier,base);
-	}	
+	}
 }
 
 void* rsn_malloc_array(rsn_config config, size_t base, int y, int x) {
@@ -85,7 +85,7 @@ void* rsn_realloc(rsn_config config, void* orig, size_t base, int multiplier) {
 				rsn_free(config.transform,&orig);
 				return memset(rsn_fftw_malloc(base*multiplier),0,base*multiplier);
 #endif
-		default:return realloc(orig,base*multiplier);		
+		default:return realloc(orig,base*multiplier);
 	}
 }
 
@@ -112,9 +112,9 @@ void print_spectrum(int L, int M, int N, int precision, rsn_spectrum spectrum, c
 		for(y = 0; y < M; y++) {
 			for(x = 0; x < N; x++)
 				fprintf(f,"%*.*"RSN_PRECISION_FORMAT,padding,precision,spectrum[z*M*N+y*N+x]);
-			fprintf(f,"\n");			
+			fprintf(f,"\n");
 		}
-		fprintf(f,"\n");			
+		fprintf(f,"\n");
 	}
 	fclose(f);
 }
@@ -127,9 +127,9 @@ void print_image(int L, int M, int N, rsn_image img, const char* file) {
 		for(y = 0; y < M; y++) {
 			for(x = 0; x < N; x++)
 				fprintf(f,"%4d",img[y][x*L+z]);
-			fprintf(f,"\n");			
+			fprintf(f,"\n");
 		}
-		fprintf(f,"\n");			
+		fprintf(f,"\n");
 	}
 	fclose(f);
 }

@@ -1,6 +1,6 @@
 /*
  * Resine - Fourier-based image resampling library.
- * This example code is distributed under no claim of copyright. 
+ * This example code is distributed under no claim of copyright.
  *
  * image.c - Image I/O functions for the example app.
  */
@@ -46,7 +46,7 @@ rsn_image read_png_file(rsn_infop info, const char* filename) {
 	info->width = png_get_image_width(png_ptr,info_ptr);
 	info->height = png_get_image_height(png_ptr,info_ptr);
     info->channels = png_get_channels(png_ptr, info_ptr);
-	
+
 	if(setjmp(png_jmpbuf(png_ptr))) abort_("[read_png_file] Error during read_image");
 
 	rsn_image image = malloc(sizeof(rsn_line)*info->height);
@@ -55,7 +55,7 @@ rsn_image read_png_file(rsn_infop info, const char* filename) {
 		image[y] = malloc(rowbytes);
 
 	png_read_image(png_ptr,image);
-	
+
 	png_infop end_ptr = png_create_info_struct(png_ptr);
 	png_read_end(png_ptr, end_ptr);
 
@@ -69,14 +69,13 @@ rsn_image read_png_file(rsn_infop info, const char* filename) {
 rsn_image read_jpeg_file(rsn_infop info,const char* filename) {
 	FILE* f = fopen(filename,"rb");
 	if(!f) abort_("Error opening jpeg file %s\n!",filename);
-	
+
 	struct jpeg_decompress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_decompress(&cinfo);
 	jpeg_stdio_src(&cinfo,f);
 	jpeg_read_header(&cinfo,TRUE);
-	
 
 	jpeg_start_decompress(&cinfo);
 
@@ -87,7 +86,7 @@ rsn_image read_jpeg_file(rsn_infop info,const char* filename) {
 	rsn_image image = malloc(sizeof(rsn_line)*info->height);
 
 	for(int y = 0; cinfo.output_scanline < info->height; y++) {
-		image[y] = malloc(sizeof(rsn_pel)*info->width*info->channels);	
+		image[y] = malloc(sizeof(rsn_pel)*info->width*info->channels);
 		jpeg_read_scanlines(&cinfo,&image[y],1);
 	}
 
@@ -101,7 +100,7 @@ rsn_image read_jpeg_file(rsn_infop info,const char* filename) {
 void write_png_file(rsn_info info,const char* filename, rsn_image image) {
 	FILE *f = fopen(filename, "wb");
 	if(!f) abort_("[write_png_file] File %s could not be opened for writing", filename);
-		
+
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if(!png_ptr) abort_("[write_png_file] png_create_write_struct failed");
 
@@ -117,7 +116,7 @@ void write_png_file(rsn_info info,const char* filename, rsn_image image) {
 	if(!(info.channels % 2)) ocsp = (info.channels - 2) | PNG_COLOR_MASK_ALPHA;
 	else ocsp = info.channels - 1;
 	png_set_IHDR(png_ptr,info_ptr,info.width_s,info.height_s,8,ocsp,PNG_INTERLACE_NONE,PNG_COMPRESSION_TYPE_DEFAULT,PNG_FILTER_TYPE_BASE);
-	
+
 	png_write_info(png_ptr,info_ptr);
 
 	if(setjmp(png_jmpbuf(png_ptr)))	abort_("[write_png_file] Error during writing bytes");
@@ -142,7 +141,7 @@ void write_jpeg_file(rsn_info info, const char* filename, rsn_image image, int q
 	jpeg_create_compress(&cinfo);
 	jpeg_stdio_dest(&cinfo,f);
 
-	cinfo.image_width = info.width_s;	
+	cinfo.image_width = info.width_s;
 	cinfo.image_height = info.height_s;
 	cinfo.input_components = info.channels;
 	cinfo.in_color_space = (int)ceil(info.channels/2.f);
@@ -153,7 +152,7 @@ void write_jpeg_file(rsn_info info, const char* filename, rsn_image image, int q
 	jpeg_start_compress(&cinfo,TRUE);
 
 	for(int y = 0; cinfo.next_scanline < info.height_s; y++)
-		jpeg_write_scanlines(&cinfo,&image[y],1);		
+		jpeg_write_scanlines(&cinfo,&image[y],1);
 
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);

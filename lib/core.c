@@ -42,11 +42,11 @@ void rsn_upscale_smooth(rsn_info,rsn_datap);
 
 // Will replace the function call in a future rev
 #define RSN_DEFAULTS (rsn_config) {\
-.transform	=	RSN_TRANSFORM_DEFAULT,\
-.scaling	=	RSN_SCALING_STANDARD,\
-.verbosity	=	0,\
-.threads	=	1,\
-.greed		=	RSN_GREED_RETAIN\
+.transform = RSN_TRANSFORM_DEFAULT,\
+.scaling   = RSN_SCALING_STANDARD,\
+.verbosity = 0,\
+.threads   = 1,\
+.greed     = RSN_GREED_RETAIN\
 }
 rsn_config rsn_defaults() {
 	return RSN_DEFAULTS;
@@ -59,11 +59,11 @@ rsn_datap rsn_init(rsn_info info, rsn_image img) {
 	data->freq_image = NULL;
 	data->freq_image_s = NULL;
 	data->image_s = NULL;
-	
+
 	if(info.config.greed & RSN_GREED_PREALLOC) {
 		data->freq_image   = rsn_malloc(info.config,sizeof(rsn_frequency),info.channels*info.height*info.width);
 		data->freq_image_s = rsn_malloc(info.config,sizeof(rsn_frequency),info.channels*info.height_s*info.width_s);
-		data->image_s	   = rsn_malloc_array(info.config,sizeof(rsn_pel),info.height_s,info.width_s*info.channels);
+		data->image_s      = rsn_malloc_array(info.config,sizeof(rsn_pel),info.height_s,info.width_s*info.channels);
 	}
 #if RSN_IS_THREADED && HAS_FFTW
 	fftw_init_threads();
@@ -74,35 +74,31 @@ rsn_datap rsn_init(rsn_info info, rsn_image img) {
 /* Transform function wrappers */
 void rsn_decompose(rsn_info info, rsn_datap data) {
 	if(!data->freq_image) 
-		data->freq_image = rsn_malloc(info.config,sizeof(rsn_frequency),info.channels*info.height*info.width);	
-	
+		data->freq_image = rsn_malloc(info.config,sizeof(rsn_frequency),info.channels*info.height*info.width);
+
 	switch (info.config.transform) {
 #if HAS_FFTW
-		case RSN_TRANSFORM_FFTW:rsn_decompose_fftw_2d(info,data);	break;
+		case RSN_TRANSFORM_FFTW:rsn_decompose_fftw_2d(info,data); break;
 #endif
 #if HAS_KISS
-		case RSN_TRANSFORM_KISS:rsn_decompose_kiss(info,data);		break;
+		case RSN_TRANSFORM_KISS:rsn_decompose_kiss(info,data);    break;
 #endif
-		default:				rsn_decompose_native(info,data);	break;
+		default:                rsn_decompose_native(info,data);  break;
 	}
-	
-/* Bad idea, let the client handle this one
- *	if(!(info.config.greed & RSN_GREED_RETAIN)) rsn_free_array(RSN_TRANSFORM_NONE,info.height,(void***)&data->image);
- */
 }
 
 void rsn_recompose(rsn_info info, rsn_datap data) {
 	if(!data->image_s)
 		data->image_s = rsn_malloc_array(info.config,sizeof(rsn_pel),info.height_s,info.width_s*info.channels);
-	
+
 	switch (info.config.transform) {
 #if HAS_FFTW
-		case RSN_TRANSFORM_FFTW:rsn_recompose_fftw_2d(info,data);	break;
+		case RSN_TRANSFORM_FFTW:rsn_recompose_fftw_2d(info,data); break;
 #endif
 #if HAS_KISS
-		case RSN_TRANSFORM_KISS:rsn_recompose_kiss(info,data);		break;
+		case RSN_TRANSFORM_KISS:rsn_recompose_kiss(info,data);    break;
 #endif
-		default:				rsn_recompose_native(info,data);	break;
+		default:                rsn_recompose_native(info,data);  break;
 	}
 	
 	if(!(info.config.greed & RSN_GREED_RETAIN)) rsn_free(info.config.transform,(void**)&data->freq_image_s);
@@ -196,7 +192,6 @@ void rsn_recompose_kiss(rsn_info info, rsn_datap data) {
 			};
 		}
 
-	
 	for(int z = 0; z < info.channels; z++) {
 		for(int x = 0; x < info.width_s; x++,coeff++)
 			cpxF[x] = (kiss_fft_cpx) {
@@ -246,7 +241,7 @@ void rsn_decompose_fftw(rsn_info info, rsn_datap data) {
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
 	rsn_fftw_plan p = rsn_fftw_plan_r2r_3d(info.channels,info.height,info.width,data->freq_image,data->freq_image,FFTW_REDFT10,FFTW_REDFT10,FFTW_REDFT10,FFTW_ESTIMATE); //FFTW_MEASURE
-	rsn_fftw_execute(p);	
+	rsn_fftw_execute(p);
 	rsn_fftw_destroy_plan(p);
 }
 
@@ -257,15 +252,15 @@ void rsn_recompose_fftw(rsn_info info, rsn_datap data) {
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
 	rsn_fftw_plan ip = rsn_fftw_plan_r2r_3d(info.channels,info.height_s,info.width_s,data->freq_image_s,output,FFTW_REDFT01,FFTW_REDFT01,FFTW_REDFT01,FFTW_ESTIMATE); //FFTW_MEASURE
-	rsn_fftw_execute(ip);	
+	rsn_fftw_execute(ip);
 	rsn_fftw_destroy_plan(ip);
 
 	for(z = 0; z < info.channels; z++)
 		for(y = 0; y < info.height_s; y++)
 			for(x = 0; x < info.width_s; x++)
-				data->image_s[y][x*info.channels+z] =	output[z*info.height_s*info.width_s+y*info.width_s+x] > 255 ? 255 :
-														output[z*info.height_s*info.width_s+y*info.width_s+x] < 0 ? 0 :
-														round(output[z*info.height_s*info.width_s+y*info.width_s+x]);
+				data->image_s[y][x*info.channels+z] = output[z*info.height_s*info.width_s+y*info.width_s+x] > 255 ? 255 :
+				                                      output[z*info.height_s*info.width_s+y*info.width_s+x] < 0 ? 0 :
+				                                      round(output[z*info.height_s*info.width_s+y*info.width_s+x]);
 	rsn_fftw_free(output);
 }
 
@@ -276,11 +271,11 @@ void rsn_decompose_fftw_2d(rsn_info info, rsn_datap data) {
 #if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
-	
+
 	rsn_fftw_plan p = fftw_plan_many_r2r(2,dims,info.channels,
-										 data->freq_image,dims,1,info.width*info.height,
-										 data->freq_image,dims,1,info.width*info.height,
-										 kind,FFTW_ESTIMATE);
+	                                     data->freq_image,dims,1,info.width*info.height,
+	                                     data->freq_image,dims,1,info.width*info.height,
+	                                     kind,FFTW_ESTIMATE);
 
 	rsn_spectrum fptr = data->freq_image;
 	for(int z = 0; z < info.channels; z++)
@@ -302,9 +297,9 @@ void rsn_recompose_fftw_2d(rsn_info info, rsn_datap data) {
 	rsn_spectrum f = rsn_fftw_malloc(sizeof(rsn_frequency)*info.channels*info.height_s*info.width_s);
 
 	rsn_fftw_plan p = fftw_plan_many_r2r(2,dims,info.channels,
-										 data->freq_image_s,dims,1,info.width_s*info.height_s,
-										 f,dims,1,info.width_s*info.height_s,
-										 kind,FFTW_ESTIMATE);
+	                                     data->freq_image_s,dims,1,info.width_s*info.height_s,
+	                                     f,dims,1,info.width_s*info.height_s,
+	                                     kind,FFTW_ESTIMATE);
 
 	rsn_fftw_execute(p);
 	rsn_fftw_destroy_plan(p);
@@ -326,8 +321,8 @@ void rsn_scale(rsn_info info, rsn_datap data) {
 		data->freq_image_s = rsn_malloc(info.config,sizeof(rsn_frequency),info.channels*info.height_s*info.width_s);
 
 	switch (info.config.scaling) {
-		case RSN_SCALING_SMOOTH:rsn_upscale_smooth(info,data);	break;
-		default:				rsn_scale_standard(info,data);	break;
+		case RSN_SCALING_SMOOTH:rsn_upscale_smooth(info,data); break;
+		default:                rsn_scale_standard(info,data); break;
 	}
 
 	if(!(info.config.greed & RSN_GREED_RETAIN)) rsn_free(info.config.transform,(void**)&data->freq_image);
@@ -342,8 +337,7 @@ void rsn_scale_standard(rsn_info info, rsn_datap data) {
 	for(z = 0; z < info.channels; z++)
 		for(y = 0; y < ylim; y++)
 			for(x = 0; x < xlim; x++)
-				data->freq_image_s[z*info.height_s*info.width_s+y*info.width_s+x] = 
-					data->freq_image[z*info.height*info.width+y*info.width+x] * scale;
+				data->freq_image_s[z*info.height_s*info.width_s+y*info.width_s+x] = data->freq_image[z*info.height*info.width+y*info.width+x] * scale;
 }
 
 /* 
@@ -371,7 +365,7 @@ void resine_data(rsn_info info, rsn_datap data) {
 		printf("Forward transform completed in %f seconds\n",elapsed(watch,0));
 		watch_add_stop(watch);
 	}
-	
+
 	rsn_scale(info,data);
 
 	if(info.config.verbosity) {
@@ -396,9 +390,6 @@ rsn_image rsn_cleanup(rsn_info info, rsn_datap data) {
 	rsn_fftw_cleanup();
 #	endif	
 #endif	
-
-// Bad idea, let the client handle this one
-//	rsn_free_array(RSN_TRANSFORM_NONE,info.height,(void***)&data->image);		
 
 	rsn_free(info.config.transform,(void**)&data->freq_image);
 	rsn_free(info.config.transform,(void**)&data->freq_image_s);
