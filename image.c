@@ -1,7 +1,6 @@
 /*
  * Resine - Fourier-based image resampling library.
- * Copyright 2010-2011 command-Q.org. All rights reserved.
- * This program is distributed under the terms of the Do What The Fuck You Want To Public License, Version 2. 
+ * This example code is distributed under no claim of copyright. 
  *
  * image.c - Image I/O functions for the example app.
  */

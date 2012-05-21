@@ -1,7 +1,6 @@
 /*
  * Resine - Fourier-based image resampling library.
- * Copyright 2010-2011 command-Q.org. All rights reserved.
- * This program is distributed under the terms of the Do What The Fuck You Want To Public License, Version 2. 
+ * This example code is distributed under no claim of copyright. 
  *
  * resine.c - Example command-line application using libresine.
  *	Reads in an image file of type PNG or JPEG, scales it, and writes it back to the format of your choice.
