@@ -145,15 +145,16 @@ rsn_image spectrogram(int L, int M, int N, rsn_spectrum F) {
 	rsn_frequency c,max = rsn_fabs(F[0]);
 	rsn_image f = malloc(sizeof(rsn_line)*M);
 	for(y = 0; y < M; y++) f[y] = malloc(sizeof(rsn_pel)*N*L);
+	rsn_frequency gain = 0.5/rsn_sqrt(N*M);
 
 	for(i = 1; i < L*M*N; i++)
 		if(rsn_fabs(F[i]) > max) max = rsn_fabs(F[i]);
-	c = 255/rsn_log(max+1);
+	c = 255/rsn_log(max*gain+1);
 
 	for(z = 0; z < L; z++)
 		for(y = 0; y < M; y++)
 			for(x = 0; x < N; x++)
-				f[y][x*L+z] = round(c * rsn_log(rsn_fabs(F[z*M*N+y*N+x]) + 1));
+				f[y][x*L+z] = round(c * rsn_log(rsn_fabs(F[z*M*N+y*N+x])*gain + 1));
 
 	return f;
 }
