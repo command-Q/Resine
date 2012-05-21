@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
 	
 	if(argc < 2) {
 		printf("Resine - Fourier-based image resampling library.\n"
-			   "\t©2010-2011 command-Q.org\n"
+			   "\t©2010-2012 command-Q.org\n"
 			   "\tVersion %s\n"
 			   "\t%s precision configuration (%zu byte float).\n"
 			   "\tCompiled with backends: native"

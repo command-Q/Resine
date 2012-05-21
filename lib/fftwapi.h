@@ -1,6 +1,6 @@
 /*
  * Resine - Fourier-based image resampling library.
- * Copyright 2010-2011 command-Q.org. All rights reserved.
+ * Copyright 2010-2012 command-Q.org. All rights reserved.
  * This library is distributed under the terms of the GNU Lesser General Public License, Version 2.
  * 
  * fftwapi.h - FFTW API wrapper abstracting the precision namespace.
