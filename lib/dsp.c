@@ -164,7 +164,7 @@ rsn_image spectrogram_anchored(int L, int M, int N, rsn_spectrum F) {
 	rsn_image f = malloc(sizeof(rsn_line)*M);
 	for(y = 0; y < M; y++) f[y] = malloc(sizeof(rsn_pel)*N*L);
 
-	rsn_frequency c = 127.5/rsn_log(M*N*510/rsn_sqrt(N*M)+1);
+	rsn_frequency c = 127.5/rsn_log(M*N*255*4+1);
 
 	for(z = 0; z < L; z++)
 		for(y = 0; y < M; y++)
@@ -178,7 +178,7 @@ rsn_spectrum spectrogram_decompress(int L, int M, int N, rsn_image f) {
 	int z,y,x;
 	rsn_spectrum F = malloc(sizeof(rsn_frequency)*L*M*N);
 
-	rsn_frequency c = 127.5/rsn_log(M*N*510/rsn_sqrt(N*M)+1);
+	rsn_frequency c = 127.5/rsn_log(M*N*255*4+1);
 
 	for(z = 0; z < L; z++)
 		for(y = 0; y < M; y++)
