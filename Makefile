@@ -137,8 +137,8 @@ dynamic: $(DYLIB)
 $(EXECUTABLE): $(EXEOBJS)
 	$(CC) $(LDPROJ) $(EXELDFLAGS) -o $(EXECUTABLE) $(EXEOBJS)
 exe: $(DYLIB) $(EXECUTABLE)
-exe-static: LDPROJ = $(STATICLDPROJ)
-exe-static: EXELDFLAGS = $(STATICEXELDFLAGS)
+exe-static: LDPROJ := $(STATICLDPROJ)
+exe-static: EXELDFLAGS := $(STATICEXELDFLAGS)
 exe-static: $(LIB) $(EXECUTABLE)
 
 archive:
