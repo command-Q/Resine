@@ -61,9 +61,6 @@ int main(int argc, char **argv) {
 #if HAS_KISS
 		       "\t        \t\t- 2: KISS FFT\n"
 #endif
-		       "\t-S <int>\t Scaling method [%d]\n"
-		       "\t        \t\t- 0: Standard\n"
-		       "\t        \t\t- 1: Smooth (upscaling only)\n"
 		       "\t-G <int>\t Greed - Memory consumption/speed trade-offs [%d]\n"
 		       "\t        \t\t- 0: Lean - Allocate and free memory on the fly\n"
 		       "\t        \t\t- 1: Prealloc - Preallocate image data\n"
@@ -80,7 +77,7 @@ int main(int argc, char **argv) {
 		       "\n"
 		       "\t-q <int>\t JPEG compression quality (0-100) [90]\n"
 		       "\n",
-		       RSN_VERSION,RSN_PRECISION_STR,(uintptr_t)sizeof(rsn_frequency),info.config.transform,info.config.scaling,info.config.greed
+		       RSN_VERSION,RSN_PRECISION_STR,(uintptr_t)sizeof(rsn_frequency),info.config.transform,info.config.greed
 #if RSN_IS_THREADED
 		       ,info.config.threads
 #endif
@@ -92,7 +89,7 @@ int main(int argc, char **argv) {
 	float sx = 1.0,sy = 1.0;
 	char* print = NULL,* graph = NULL;
 
-	while((c = getopt(argc,argv,"s:x:y:w:h:t:T:S:G:p:g:vq:")) != -1)
+	while((c = getopt(argc,argv,"s:x:y:w:h:t:T:G:p:g:vq:")) != -1)
 		switch (c) {
 			case 's' : sx = sy = strtof(optarg,NULL);                  break;
 			case 'x' : sx = strtof(optarg,NULL);                       break;
@@ -100,7 +97,6 @@ int main(int argc, char **argv) {
 			case 'w' : info.width_s = strtol(optarg,NULL,10);          break;
 			case 'h' : info.height_s = strtol(optarg,NULL,10);         break;
 			case 'T' : info.config.transform = strtol(optarg,NULL,10); break;
-			case 'S' : info.config.scaling = strtol(optarg,NULL,10);   break;
 			case 'G' : info.config.greed = strtol(optarg,NULL,10);     break;
 			case 't' : info.config.threads = strtol(optarg,NULL,10);   break;
 			case 'p' : print = optarg;                                 break;

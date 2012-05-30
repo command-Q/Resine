@@ -63,7 +63,6 @@ typedef rsn_spectrum** rsn_wisdom;
 #endif
 
 #define RSN_SCALING_STANDARD 0
-#define RSN_SCALING_SMOOTH   1
 
 #define RSN_GREED_LEAN            0
 #define RSN_GREED_PREALLOC        1

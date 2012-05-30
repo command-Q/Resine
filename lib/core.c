@@ -38,7 +38,6 @@ void rsn_decompose_fftw_2d(rsn_info,rsn_datap);
 void rsn_recompose_fftw_2d(rsn_info,rsn_datap);
 #endif
 void rsn_scale_standard(rsn_info,rsn_datap);
-void rsn_upscale_smooth(rsn_info,rsn_datap);
 
 // Will replace the function call in a future rev
 #define RSN_DEFAULTS (rsn_config) {\
@@ -319,8 +318,7 @@ void rsn_scale(rsn_info info, rsn_datap data) {
 		data->freq_image_s = rsn_malloc(info.config,sizeof(rsn_frequency),info.channels*info.height_s*info.width_s);
 
 	switch (info.config.scaling) {
-		case RSN_SCALING_SMOOTH:rsn_upscale_smooth(info,data); break;
-		default:                rsn_scale_standard(info,data); break;
+		default: rsn_scale_standard(info,data); break;
 	}
 
 	if(!(info.config.greed & RSN_GREED_RETAIN)) rsn_free(info.config.transform,(void**)&data->freq_image);
@@ -336,15 +334,6 @@ void rsn_scale_standard(rsn_info info, rsn_datap data) {
 		for(y = 0; y < ylim; y++)
 			for(x = 0; x < xlim; x++)
 				data->freq_image_s[z*info.height_s*info.width_s+y*info.width_s+x] = data->freq_image[z*info.height*info.width+y*info.width+x] * scale;
-}
-
-/* 
- This method was initially coded to use the coefficients from another upsampling method to complement the empty coefficients created by standard upsampling.
-   However, changes to the library since have made it incompatible. It remains a stub for future reimplementation.
- */
-void rsn_upscale_smooth(rsn_info info, rsn_datap data) {
-	fprintf(stderr,"WARNING: Smooth upscaling is currently broken. Performing standard scaling instead.");
-	rsn_scale_standard(info,data);
 }
 
 rsn_image resine(rsn_info info, rsn_image image) {
