@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
 		       "\t        \t\t- 2: Retain - Don't free any memory until rsn_destroy is called\n"
 		       "\t        \t\t- 3: Prealloc and retain\n"
 #if RSN_IS_THREADED
-		       "\t-t <int>\t Number of threads to use.\n"
+		       "\t-t <int>\t Number of threads to use [%d]\n"
 #endif
 		       "\t-g <filename>\t Graph: Draw spectrogram to file <filename>.png (NOTE: Bumps Greed level to Retain if necessary).\n"
 		       "\t-p <filename>\t Print: Dump transform data into file <filename>.\n"
@@ -80,7 +80,11 @@ int main(int argc, char **argv) {
 		       "\n"
 		       "\t-q <int>\t JPEG compression quality (0-100) [90]\n"
 		       "\n",
-		       RSN_VERSION,RSN_PRECISION_STR,(uintptr_t)sizeof(rsn_frequency),info.config.transform,info.config.scaling,info.config.greed);
+		       RSN_VERSION,RSN_PRECISION_STR,(uintptr_t)sizeof(rsn_frequency),info.config.transform,info.config.scaling,info.config.greed
+#if RSN_IS_THREADED
+		       ,info.config.threads
+#endif
+		       );
 		return 0;
 	}
 
@@ -88,7 +92,7 @@ int main(int argc, char **argv) {
 	float sx = 1.0,sy = 1.0;
 	char* print = NULL,* graph = NULL;
 
-	while((c = getopt(argc,argv,"s:x:y:w:h:T:S:G:p:g:vq:")) != -1)
+	while((c = getopt(argc,argv,"s:x:y:w:h:t:T:S:G:p:g:vq:")) != -1)
 		switch (c) {
 			case 's' : sx = sy = strtof(optarg,NULL);                  break;
 			case 'x' : sx = strtof(optarg,NULL);                       break;
