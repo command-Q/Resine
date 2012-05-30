@@ -40,20 +40,16 @@ ifeq ($(HAS_KISS),1)
 	KISS = $(patsubst %.c,%.o,$(wildcard kissfft/*.c))
 endif
 ifeq ($(HAS_FFTW),1)
-	_LDFLAGS += -L$(incl_libdir)
 	ifeq ($(PRECISION),SINGLE)
-		_LDFLAGS += -lfftw3f 
-		STATICLDPROJ = $(incl_libdir)/libfftw3f.a 
+		PSUF=f
 	else ifeq ($(PRECISION),LONG)
-		_LDFLAGS += -lfftw3l
-		STATICLDPROJ = $(incl_libdir)/libfftw3l.a 
-	else 
-		_LDFLAGS += -lfftw3
-		STATICLDPROJ = $(incl_libdir)/libfftw3.a 
+		PSUF=l
 	endif
+	_LDFLAGS += -L$(incl_libdir) -lfftw3$(PSUF)
+	STATICLDPROJ = $(incl_libdir)/libfftw3$(PSUF).a
 	ifeq ($(THREADED),1)
-		_LDFLAGS += -lfftw3_threads
-		STATICLDPROJ += $(incl_libdir)/libfftw3_threads.a 
+		_LDFLAGS += -lfftw3$(PSUF)_threads
+		STATICLDPROJ += $(incl_libdir)/libfftw3$(PSUF)_threads.a
 	endif
 endif
 
