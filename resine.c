@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <getopt.h>
+#include <inttypes.h>
 
 int main(int argc, char **argv) {
 
@@ -23,7 +24,7 @@ int main(int argc, char **argv) {
 		printf("Resine - Fourier-based image resampling library.\n"
 		       "\t©2010-2012 command-Q.org\n"
 		       "\tVersion %s\n"
-		       "\t%s precision configuration (%zu byte float).\n"
+		       "\t%s precision configuration (%" PRIuPTR " byte float).\n"
 		       "\tCompiled with backends: native"
 #if HAS_FFTW
 		       ", FFTW"
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
 		       "\n"
 		       "\t-q <int>\t JPEG compression quality (0-100) [90]\n"
 		       "\n",
-		       RSN_VERSION,RSN_PRECISION_STR,sizeof(rsn_frequency),info.config.transform,info.config.scaling,info.config.greed);
+		       RSN_VERSION,RSN_PRECISION_STR,(uintptr_t)sizeof(rsn_frequency),info.config.transform,info.config.scaling,info.config.greed);
 		return 0;
 	}
 
