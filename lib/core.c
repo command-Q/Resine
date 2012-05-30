@@ -66,7 +66,7 @@ rsn_datap rsn_init(rsn_info info, rsn_image img) {
 		data->image_s      = rsn_malloc_array(info.config,sizeof(rsn_pel),info.height_s,info.width_s*info.channels);
 	}
 #if RSN_IS_THREADED && HAS_FFTW
-	fftw_init_threads();
+	rsn_fftw_init_threads();
 #endif
 	return data;
 }
@@ -240,7 +240,7 @@ void rsn_decompose_fftw(rsn_info info, rsn_datap data) {
 #if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
-	rsn_fftw_plan p = rsn_fftw_plan_r2r_3d(info.channels,info.height,info.width,data->freq_image,data->freq_image,FFTW_REDFT10,FFTW_REDFT10,FFTW_REDFT10,FFTW_ESTIMATE); //FFTW_MEASURE
+	rsn_fftw_plan p = rsn_fftw_plan_r2r_3d(info.channels,info.height,info.width,data->freq_image,data->freq_image,FFTW_REDFT10,FFTW_REDFT10,FFTW_REDFT10,FFTW_ESTIMATE);
 	rsn_fftw_execute(p);
 	rsn_fftw_destroy_plan(p);
 }
@@ -251,7 +251,7 @@ void rsn_recompose_fftw(rsn_info info, rsn_datap data) {
 #if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
-	rsn_fftw_plan ip = rsn_fftw_plan_r2r_3d(info.channels,info.height_s,info.width_s,data->freq_image_s,output,FFTW_REDFT01,FFTW_REDFT01,FFTW_REDFT01,FFTW_ESTIMATE); //FFTW_MEASURE
+	rsn_fftw_plan ip = rsn_fftw_plan_r2r_3d(info.channels,info.height_s,info.width_s,data->freq_image_s,output,FFTW_REDFT01,FFTW_REDFT01,FFTW_REDFT01,FFTW_ESTIMATE);
 	rsn_fftw_execute(ip);
 	rsn_fftw_destroy_plan(ip);
 
@@ -266,16 +266,15 @@ void rsn_recompose_fftw(rsn_info info, rsn_datap data) {
 
 void rsn_decompose_fftw_2d(rsn_info info, rsn_datap data) {
 	const int dims[2] = {info.height,info.width};
-	fftw_r2r_kind kind[info.channels];
-	for(int z = 0; z < info.channels; z++) kind[z] = FFTW_REDFT10;
+	const fftw_r2r_kind kind[2] = {FFTW_REDFT10,FFTW_REDFT10};
 #if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
 
-	rsn_fftw_plan p = fftw_plan_many_r2r(2,dims,info.channels,
-	                                     data->freq_image,dims,1,info.width*info.height,
-	                                     data->freq_image,dims,1,info.width*info.height,
-	                                     kind,FFTW_ESTIMATE);
+	rsn_fftw_plan p = rsn_fftw_plan_many_r2r(2,dims,info.channels,
+	                                         data->freq_image,NULL,1,info.width*info.height,
+	                                         data->freq_image,NULL,1,info.width*info.height,
+	                                         kind,FFTW_ESTIMATE);
 
 	rsn_spectrum fptr = data->freq_image;
 	for(int z = 0; z < info.channels; z++)
@@ -289,17 +288,16 @@ void rsn_decompose_fftw_2d(rsn_info info, rsn_datap data) {
 
 void rsn_recompose_fftw_2d(rsn_info info, rsn_datap data) {
 	const int dims[2] = {info.height_s,info.width_s};
-	fftw_r2r_kind kind[info.channels];
-	for(int z = 0; z < info.channels; z++) kind[z] = FFTW_REDFT01;
+	const fftw_r2r_kind kind[2] = {FFTW_REDFT01,FFTW_REDFT01};
 #if RSN_IS_THREADED 
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
 	rsn_spectrum f = rsn_fftw_malloc(sizeof(rsn_frequency)*info.channels*info.height_s*info.width_s);
 
-	rsn_fftw_plan p = fftw_plan_many_r2r(2,dims,info.channels,
-	                                     data->freq_image_s,dims,1,info.width_s*info.height_s,
-	                                     f,dims,1,info.width_s*info.height_s,
-	                                     kind,FFTW_ESTIMATE);
+	rsn_fftw_plan p = rsn_fftw_plan_many_r2r(2,dims,info.channels,
+	                                         data->freq_image_s,NULL,1,info.width_s*info.height_s,
+	                                         f                 ,NULL,1,info.width_s*info.height_s,
+	                                         kind,FFTW_ESTIMATE);
 
 	rsn_fftw_execute(p);
 	rsn_fftw_destroy_plan(p);
@@ -385,7 +383,7 @@ void resine_data(rsn_info info, rsn_datap data) {
 rsn_image rsn_cleanup(rsn_info info, rsn_datap data) {
 #if HAS_FFTW
 #	if RSN_IS_THREADED
-	fftw_cleanup_threads();
+	rsn_fftw_cleanup_threads();
 #	else
 	rsn_fftw_cleanup();
 #	endif	
@@ -395,7 +393,6 @@ rsn_image rsn_cleanup(rsn_info info, rsn_datap data) {
 	rsn_free(info.config.transform,(void**)&data->freq_image_s);
 	rsn_image out = data->image_s;
 	free(data);
-	data = NULL;
 	return out;
 }
 
