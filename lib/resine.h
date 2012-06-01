@@ -34,14 +34,17 @@ typedef rsn_line*     rsn_image;
 #if RSN_PRECISION == SINGLE
 #	define RSN_PRECISION_STR    "Single"
 #	define RSN_PRECISION_FORMAT "f"
+#	define RSN_SUFFIX_PRECISION(prefix,suffix) prefix ## f ## suffix
 typedef float rsn_frequency;
 #elif RSN_PRECISION == LONG
 #	define RSN_PRECISION_STR    "Long"
 #	define RSN_PRECISION_FORMAT "Lf"
+#	define RSN_SUFFIX_PRECISION(prefix,suffix) prefix ## l ## suffix
 typedef long double rsn_frequency;
 #else
 #	define RSN_PRECISION_STR    "Double"
 #	define RSN_PRECISION_FORMAT "f"
+#	define RSN_SUFFIX_PRECISION(prefix,suffix) prefix ## suffix
 typedef double rsn_frequency;
 #endif
 typedef rsn_frequency* rsn_spectrum;
