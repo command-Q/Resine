@@ -2,7 +2,7 @@
  * Resine - Fourier-based image resampling library.
  * Copyright 2010-2012 command-Q.org. All rights reserved.
  * This library is distributed under the terms of the GNU Lesser General Public License, Version 2.
- * 
+ *
  * util.c - libresine utility and helper functions. 
  *	Includes a high precision timer for profiling and wrapper functions to ensure the proper memory allocation regardless of the transform type.
  */
@@ -55,7 +55,7 @@ void rsn_free(int type, void** data) {
 #if HAS_FFTW
 		case RSN_TRANSFORM_FFTW:rsn_fftw_free(*data);	break;
 #endif
-		default:				free(*data);			break;
+		default:                free(*data);            break;
 	}
 	*data = NULL;
 }
@@ -63,7 +63,7 @@ void rsn_free(int type, void** data) {
 void rsn_free_array(int type, int length, void*** data) {
 	if(!*data) return;
 	for(int i = 0; i < length; i++) rsn_free(type,&((*data)[i]));
-	free(*data);		
+	free(*data);
 	*data = NULL;
 }
 
@@ -72,7 +72,7 @@ void* rsn_malloc(rsn_config config, size_t base, int multiplier) {
 #if HAS_FFTW
 		case RSN_TRANSFORM_FFTW:return memset(rsn_fftw_malloc(base*multiplier),0,base*multiplier);
 #endif
-		default:				return calloc(multiplier,base);
+		default:                return calloc(multiplier,base);
 	}
 }
 

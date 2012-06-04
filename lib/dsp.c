@@ -2,7 +2,7 @@
  * Resine - Fourier-based image resampling library.
  * Copyright 2010-2012 command-Q.org. All rights reserved.
  * This library is distributed under the terms of the GNU Lesser General Public License, Version 2.
- * 
+ *
  * dsp.c - Native DSP utilities.
  */
 
@@ -31,13 +31,13 @@ void rsn_dct(int L, int M, int N, rsn_image f, rsn_spectrum F) {
 	rsn_frequency HNORM = 1/rsn_sqrt(N*M);
 	rsn_frequency NORM2 = 2/rsn_sqrt(2*N*M);
 	rsn_frequency PI_M  = RSN_PI / M;
-	rsn_frequency PI_N	= RSN_PI / N;
+	rsn_frequency PI_N  = RSN_PI / N;
 	rsn_frequency HPI_M = RSN_PI / (2*M);
 	rsn_frequency HPI_N = RSN_PI / (2*N);
 	rsn_frequency wisdom[M][N];
 	rsn_frequency PI_Mv, PI_Nu, HPI_Mv, HPI_Nu;
 	int z, v, u, j, i;
-	for(v = 0, PI_Mv = 0, HPI_Mv = 0; v < M; v++, PI_Mv += PI_M, HPI_Mv += HPI_M) 
+	for(v = 0, PI_Mv = 0, HPI_Mv = 0; v < M; v++, PI_Mv += PI_M, HPI_Mv += HPI_M)
 		for(u = 0, PI_Nu = 0, HPI_Nu = 0; u < N; u++, PI_Nu += PI_N, HPI_Nu += HPI_N) {
 			for(j = 0; j < M; j++)
 				for(i = 0; i < N; i++) {
@@ -72,7 +72,7 @@ void rsn_idct(int L, int M, int N, rsn_spectrum F, rsn_image f) {
 				for(u = 0, PI_Nu = 0, HPI_Nu = 0; u < N; u++, PI_Nu += PI_N, HPI_Nu += HPI_N) {
 					if(!(u+v))  wisdom[0][0] = HNORM;
 					else if(!u) wisdom[v][0] = NORM2 * rsn_cos(j*PI_Mv+HPI_Mv);
-					else if(!v) wisdom[0][u] = NORM2 * rsn_cos(i*PI_Nu+HPI_Nu);	
+					else if(!v) wisdom[0][u] = NORM2 * rsn_cos(i*PI_Nu+HPI_Nu);
 					else        wisdom[v][u] = NORM  * rsn_cos(j*PI_Mv+HPI_Mv) * rsn_cos(i*PI_Nu+HPI_Nu);
 					s += wisdom[v][u] * F[v*N+u];
 				}

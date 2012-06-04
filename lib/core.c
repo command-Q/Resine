@@ -2,7 +2,7 @@
  * Resine - Fourier-based image resampling library.
  * Copyright 2010-2012 command-Q.org. All rights reserved.
  * This library is distributed under the terms of the GNU Lesser General Public License, Version 2.
- * 
+ *
  * core.c - libresine core.
  */
 
@@ -72,7 +72,7 @@ rsn_datap rsn_init(rsn_info info, rsn_image img) {
 
 /* Transform function wrappers */
 void rsn_decompose(rsn_info info, rsn_datap data) {
-	if(!data->freq_image) 
+	if(!data->freq_image)
 		data->freq_image = rsn_malloc(info.config,sizeof(rsn_frequency),info.channels*info.height*info.width);
 
 	switch (info.config.transform) {
@@ -99,7 +99,7 @@ void rsn_recompose(rsn_info info, rsn_datap data) {
 #endif
 		default:                rsn_recompose_native(info,data);  break;
 	}
-	
+
 	if(!(info.config.greed & RSN_GREED_RETAIN)) rsn_free(info.config.transform,(void**)&data->freq_image_s);
 }
 
@@ -127,7 +127,7 @@ void rsn_decompose_kiss(rsn_info info, rsn_datap data) {
 	for(int y = 0; y < info.height; y++)
 		for(int x = 0; x < info.width; x++)
 			shift_matrix[y*(info.width+1)+x] = (kiss_fft_cpx) {
-				rsn_cos(EXP*(x*info.width+y*info.height)), 
+				rsn_cos(EXP*(x*info.width+y*info.height)),
 				rsn_sin(EXP*(x*info.width+y*info.height))
 			};
 
@@ -145,7 +145,7 @@ void rsn_decompose_kiss(rsn_info info, rsn_datap data) {
 		for(int y = 0; y < info.height; y++)
 			for(int x = 0; x < info.width; x++)
 				data->freq_image[z*info.height*info.width+y*info.width+x] = 
-				cpxF[y*(info.width+1)+x].r * shift_matrix[y*(info.width+1)+x].r - 
+				cpxF[y*(info.width+1)+x].r * shift_matrix[y*(info.width+1)+x].r -
 				cpxF[y*(info.width+1)+x].i * shift_matrix[y*(info.width+1)+x].i;
 //In terms of C99 complex
 //				creal((cpxF[y*(info.width+1)+x].r + I*cpxF[y*(info.width+1)+x].i) * cexp(I*(EXP*(x*info.width+y*info.height))));
@@ -247,7 +247,7 @@ void rsn_decompose_fftw(rsn_info info, rsn_datap data) {
 void rsn_recompose_fftw(rsn_info info, rsn_datap data) {
 	int z,y,x;
 	rsn_spectrum output = rsn_fftw_malloc(sizeof(rsn_frequency)*info.channels*info.width_s*info.height_s);
-#if RSN_IS_THREADED 
+#if RSN_IS_THREADED
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
 	rsn_fftw_plan ip = rsn_fftw_plan_r2r_3d(info.channels,info.height_s,info.width_s,data->freq_image_s,output,FFTW_REDFT01,FFTW_REDFT01,FFTW_REDFT01,FFTW_ESTIMATE);
@@ -288,7 +288,7 @@ void rsn_decompose_fftw_2d(rsn_info info, rsn_datap data) {
 void rsn_recompose_fftw_2d(rsn_info info, rsn_datap data) {
 	const int dims[2] = {info.height_s,info.width_s};
 	const fftw_r2r_kind kind[2] = {FFTW_REDFT01,FFTW_REDFT01};
-#if RSN_IS_THREADED 
+#if RSN_IS_THREADED
 	rsn_fftw_plan_with_nthreads(info.config.threads);
 #endif
 	rsn_spectrum f = rsn_fftw_malloc(sizeof(rsn_frequency)*info.channels*info.height_s*info.width_s);
@@ -375,8 +375,8 @@ rsn_image rsn_cleanup(rsn_info info, rsn_datap data) {
 	rsn_fftw_cleanup_threads();
 #	else
 	rsn_fftw_cleanup();
-#	endif	
-#endif	
+#	endif
+#endif
 
 	rsn_free(info.config.transform,(void**)&data->freq_image);
 	rsn_free(info.config.transform,(void**)&data->freq_image_s);

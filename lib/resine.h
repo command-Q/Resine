@@ -2,7 +2,7 @@
  * Resine - Fourier-based image resampling library.
  * Copyright 2010-2012 command-Q.org. All rights reserved.
  * This library is distributed under the terms of the GNU Lesser General Public License, Version 2.
- * 
+ *
  * resine.h - libresine public API.
  */
 
@@ -100,7 +100,7 @@ rsn_config rsn_defaults();
 /* Returns the input image scaled to the dimensions given in the info struct. */
 rsn_image resine(rsn_info,rsn_image);
 
-/* Constructs a data container according to the configuration provided in rsn_info. 
+/* Constructs a data container according to the configuration provided in rsn_info.
  * Image data is referenced, not copied. */
 rsn_datap rsn_init(rsn_info,rsn_image);
 
@@ -112,7 +112,7 @@ void rsn_decompose(rsn_info,rsn_datap);
 void rsn_scale(rsn_info,rsn_datap);
 void rsn_recompose(rsn_info,rsn_datap);
 
-/* Cleans out Resine data, leaving only the output image. 
+/* Cleans out Resine data, leaving only the output image.
  * If the returned image will not be freed by the caller, it will leak. For this behavior, use rsn_destroy instead. */
 rsn_image rsn_cleanup(rsn_info,rsn_datap);
 

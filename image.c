@@ -25,7 +25,7 @@ void abort_(const char* s, ...) {
 
 rsn_image read_png_file(rsn_infop info, const char* filename) {
 	FILE* f = fopen(filename,"rb");
-	if(!f)	abort_("[read_png_file] File %s could not be opened for reading",filename);
+	if(!f) abort_("[read_png_file] File %s could not be opened for reading",filename);
 	unsigned char header[8];
 	fread(header,1,8,f);
 	if(png_sig_cmp(header,0,8)) abort_("[read_png_file] File %s is not recognized as a PNG file",filename);
@@ -45,7 +45,7 @@ rsn_image read_png_file(rsn_infop info, const char* filename) {
 	png_read_info(png_ptr,info_ptr);
 	info->width = png_get_image_width(png_ptr,info_ptr);
 	info->height = png_get_image_height(png_ptr,info_ptr);
-    info->channels = png_get_channels(png_ptr, info_ptr);
+	info->channels = png_get_channels(png_ptr, info_ptr);
 
 	if(setjmp(png_jmpbuf(png_ptr))) abort_("[read_png_file] Error during read_image");
 
@@ -107,11 +107,11 @@ void write_png_file(rsn_info info,const char* filename, rsn_image image) {
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if(!info_ptr) abort_("[write_png_file] png_create_info_struct failed");
 
-	if(setjmp(png_jmpbuf(png_ptr)))	abort_("[write_png_file] Error during init_io");
+	if(setjmp(png_jmpbuf(png_ptr))) abort_("[write_png_file] Error during init_io");
 
 	png_init_io(png_ptr,f);
 
-	if(setjmp(png_jmpbuf(png_ptr)))	abort_("[write_png_file] Error during writing header");
+	if(setjmp(png_jmpbuf(png_ptr))) abort_("[write_png_file] Error during writing header");
 	int ocsp;
 	if(!(info.channels % 2)) ocsp = (info.channels - 2) | PNG_COLOR_MASK_ALPHA;
 	else ocsp = info.channels - 1;
@@ -119,19 +119,19 @@ void write_png_file(rsn_info info,const char* filename, rsn_image image) {
 
 	png_write_info(png_ptr,info_ptr);
 
-	if(setjmp(png_jmpbuf(png_ptr)))	abort_("[write_png_file] Error during writing bytes");
+	if(setjmp(png_jmpbuf(png_ptr))) abort_("[write_png_file] Error during writing bytes");
 
 	png_write_image(png_ptr,image);
 
-	if(setjmp(png_jmpbuf(png_ptr)))	abort_("[write_png_file] Error during end of write");
+	if(setjmp(png_jmpbuf(png_ptr))) abort_("[write_png_file] Error during end of write");
 	png_write_end(png_ptr,NULL);
 	fclose(f);
 	png_destroy_write_struct(&png_ptr,&info_ptr);
 	png_destroy_info_struct(png_ptr,&info_ptr);
 }
 
-void write_jpeg_file(rsn_info info, const char* filename, rsn_image image, int quality) {	
-	FILE* f = fopen(filename,"wb");	
+void write_jpeg_file(rsn_info info, const char* filename, rsn_image image, int quality) {
+	FILE* f = fopen(filename,"wb");
 	if(!f) abort_("Error opening output jpeg file %s\n!",filename);
 
 	struct jpeg_compress_struct cinfo;

@@ -117,10 +117,10 @@ int main(int argc, char **argv) {
 
 	rsn_image img = NULL;
 	switch(in_type) {
-		case RSN_IMGTYPE_PNG  : img = read_png_file(&info,infile);	break;
-		case RSN_IMGTYPE_JPEG : img = read_jpeg_file(&info,infile);	break;
+		case RSN_IMGTYPE_PNG  : img = read_png_file(&info,infile);  break;
+		case RSN_IMGTYPE_JPEG : img = read_jpeg_file(&info,infile); break;
 		case RSN_IMGTYPE_NONE :
-		default               : fprintf(stderr,"Image is not a supported type (PNG, JPEG).\n");	return 1; // Unsupported type
+		default               : fprintf(stderr,"Image is not a supported type (PNG, JPEG).\n"); return 1; // Unsupported type
 	}
 	if(!info.height_s) info.height_s = round(info.height*sx);
 	if(!info.width_s) info.width_s = round(info.width*sy);
@@ -162,8 +162,8 @@ int main(int argc, char **argv) {
 	}
 
 	switch(out_type) {
-		case  RSN_IMGTYPE_PNG : write_png_file(info,outfile,data->image_s);			break;
-		case RSN_IMGTYPE_JPEG : write_jpeg_file(info,outfile,data->image_s,jpeg_q);	break;
+		case  RSN_IMGTYPE_PNG : write_png_file(info,outfile,data->image_s);         break;
+		case RSN_IMGTYPE_JPEG : write_jpeg_file(info,outfile,data->image_s,jpeg_q); break;
 	}
 
 	rsn_destroy(info,data);
