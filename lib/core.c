@@ -15,8 +15,8 @@
 #include <stdlib.h>
 
 #if HAS_KISS
-#	if RSN_PRECISION == LONG
-#		pragma message("KISS FFT does not support long precision, KISS operations will use double instead.")
+#	if RSN_PRECISION > DOUBLE
+#		pragma message("KISS FFT does not support long or higher precision, KISS operations will use double instead.")
 #		define kiss_fft_scalar double
 #	else
 #		define kiss_fft_scalar rsn_frequency

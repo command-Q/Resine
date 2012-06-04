@@ -12,6 +12,13 @@
 #include "resine.h"
 
 #include <math.h>
+#if RSN_PRECISION == QUAD
+#	include <quadmath.h>
+#	define RSN_SUFFIX_CONSTANT(token) token ## q
+#else
+#	define RSN_SUFFIX_CONSTANT(token) token
+#endif
+
 #define rsn_cos      RSN_SUFFIX_PRECISION(cos,)
 #define rsn_sin      RSN_SUFFIX_PRECISION(sin,)
 #define rsn_sqrt     RSN_SUFFIX_PRECISION(sqrt,)
@@ -19,6 +26,9 @@
 #define rsn_log      RSN_SUFFIX_PRECISION(log,)
 #define rsn_pow      RSN_SUFFIX_PRECISION(pow,)
 #define rsn_copysign RSN_SUFFIX_PRECISION(copysign,)
+#define RSN_PI       RSN_SUFFIX_CONSTANT(M_PI)
+#define RSN_SQRT1_2  RSN_SUFFIX_CONSTANT(M_SQRT1_2)
+#define RSN_E        RSN_SUFFIX_CONSTANT(M_E)
 
 /* Canonical implementation of the i/DCT with (very) minor optimizations */
 rsn_frequency CC(int,int);

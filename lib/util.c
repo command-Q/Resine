@@ -18,6 +18,10 @@
 #include <string.h>
 #include <time.h>
 
+#if RSN_PRECISION == QUAD
+#	include <quadmath.h>
+#endif
+
 struct stopwatch {
 	clock_t* timers;
 	unsigned int stops;
@@ -104,17 +108,24 @@ void print_spectrum(int L, int M, int N, int precision, rsn_spectrum spectrum, c
 		if(spectrum[i] < min) min = spectrum[i];
 		else if(spectrum[i] > max) max = spectrum[i];
 	}
-	printf("Minimum frequency: %f\nMaximum frequency: %f\n",min,max);
+	printf("Minimum frequency: %f\nMaximum frequency: %f\n",(double)min,(double)max);
 	padding += precision + 2;
+	char p[padding+1];
 	FILE* f = fopen(file,"w");
 	for(z = 0; z < L; z++) {
 		fprintf(f,"Plane %d\n",z);
 		for(y = 0; y < M; y++) {
-			for(x = 0; x < N; x++)
-				fprintf(f,"%*.*"RSN_PRECISION_FORMAT,padding,precision,spectrum[z*M*N+y*N+x]);
-			fprintf(f,"\n");
+			for(x = 0; x < N; x++) {
+#if RSN_PRECISION == QUAD
+				quadmath_snprintf(p,padding+1,"%*.*"RSN_PRECISION_FORMAT,padding,precision,spectrum[z*M*N+y*N+x]);
+#else
+				snprintf(p,padding+1,"%*.*"RSN_PRECISION_FORMAT,padding,precision,spectrum[z*M*N+y*N+x]);
+#endif
+				fputs(p,f);
+			}
+			fputc('\n',f);
 		}
-		fprintf(f,"\n");
+		fputc('\n',f);
 	}
 	fclose(f);
 }
@@ -127,9 +138,9 @@ void print_image(int L, int M, int N, rsn_image img, const char* file) {
 		for(y = 0; y < M; y++) {
 			for(x = 0; x < N; x++)
 				fprintf(f,"%4d",img[y][x*L+z]);
-			fprintf(f,"\n");
+			fputc('\n',f);
 		}
-		fprintf(f,"\n");
+		fputc('\n',f);
 	}
 	fclose(f);
 }

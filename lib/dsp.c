@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 /* Canonical implementation of the i/DCT with (very) minor optimizations */
-rsn_frequency CC(int a, int b) { return a ? (b ? 1 : M_SQRT1_2) : (b ? M_SQRT1_2 : 0.5); }
+rsn_frequency CC(int a, int b) { return a ? (b ? 1 : RSN_SQRT1_2) : (b ? RSN_SQRT1_2 : 0.5); }
 
 /* Direct nonnormalized DCT, pretty much just useful for testing */
 void rsn_dct_direct(int L, int M, int N, rsn_image f, rsn_spectrum F) {
@@ -23,17 +23,17 @@ void rsn_dct_direct(int L, int M, int N, rsn_image f, rsn_spectrum F) {
 			for(u = 0; u < N; u++)
 				for(j = 0; j < M; j++)
 					for(i = 0; i < N; i++)
-						F[z*N*M+v*N+u] += f[j][i*L+z] * rsn_cos((j+0.5)*v*M_PI/M) * rsn_cos((i+0.5)*u*M_PI/N);
+						F[z*N*M+v*N+u] += f[j][i*L+z] * rsn_cos((j+0.5)*v*RSN_PI/M) * rsn_cos((i+0.5)*u*RSN_PI/N);
 }
 
 void rsn_dct(int L, int M, int N, rsn_image f, rsn_spectrum F) {
 	rsn_frequency NORM  = 2/rsn_sqrt(N*M);
 	rsn_frequency HNORM = 1/rsn_sqrt(N*M);
 	rsn_frequency NORM2 = 2/rsn_sqrt(2*N*M);
-	rsn_frequency PI_M  = M_PI / M;
-	rsn_frequency PI_N	= M_PI / N;
-	rsn_frequency HPI_M = M_PI / (2*M);
-	rsn_frequency HPI_N = M_PI / (2*N);
+	rsn_frequency PI_M  = RSN_PI / M;
+	rsn_frequency PI_N	= RSN_PI / N;
+	rsn_frequency HPI_M = RSN_PI / (2*M);
+	rsn_frequency HPI_N = RSN_PI / (2*N);
 	rsn_frequency wisdom[M][N];
 	rsn_frequency PI_Mv, PI_Nu, HPI_Mv, HPI_Nu;
 	int z, v, u, j, i;
@@ -58,10 +58,10 @@ void rsn_idct(int L, int M, int N, rsn_spectrum F, rsn_image f) {
 	rsn_frequency NORM = 2/rsn_sqrt(N*M);
 	rsn_frequency HNORM = 1/rsn_sqrt(N*M);
 	rsn_frequency NORM2 = 2/rsn_sqrt(2*N*M);
-	rsn_frequency PI_M = M_PI / M;
-	rsn_frequency PI_N = M_PI / N;
-	rsn_frequency HPI_M = M_PI / (2*M);
-	rsn_frequency HPI_N = M_PI / (2*N);
+	rsn_frequency PI_M = RSN_PI / M;
+	rsn_frequency PI_N = RSN_PI / N;
+	rsn_frequency HPI_M = RSN_PI / (2*M);
+	rsn_frequency HPI_N = RSN_PI / (2*N);
 	rsn_frequency wisdom[M][N];
 	rsn_frequency s;
 	rsn_frequency PI_Mv, PI_Nu, HPI_Mv, HPI_Nu;
@@ -93,7 +93,7 @@ void rsn_dct_rowcol(int L, int M, int N, rsn_image f, rsn_spectrum F) {
 	rsn_spectrum twiddles = malloc(sizeof(rsn_frequency)*t_len*t_len);
 	for(int t1 = 0; t1 < t_len; t1++)
 		for(int t2 = 0; t2 < t_len; t2++)
-			twiddles[t1*t_len+t2] = rsn_cos(M_PI/t_len * (t2+0.5) * t1) * 2;
+			twiddles[t1*t_len+t2] = rsn_cos(RSN_PI/t_len * (t2+0.5) * t1) * 2;
 
 	for(int z = 0; z < L; z++) {
 		for(int row = 0; row < M; row++)
@@ -118,7 +118,7 @@ void rsn_idct_rowcol(int L, int M, int N, rsn_spectrum F, rsn_image f) {
 	rsn_spectrum twiddles = malloc(sizeof(rsn_frequency)*t_len*(t_len-1));
 	for(int t1 = 0; t1 < t_len; t1++)
 		for(int t2 = 1; t2 < t_len; t2++)
-			twiddles[t1*(t_len-1)+t2-1] = rsn_cos(M_PI/t_len * (t1+0.5) * t2);
+			twiddles[t1*(t_len-1)+t2-1] = rsn_cos(RSN_PI/t_len * (t1+0.5) * t2);
 
 	for(int z = 0; z < L; z++) {
 		for(int row = 0; row < M; row++)
@@ -183,7 +183,7 @@ rsn_spectrum spectrogram_decompress(int L, int M, int N, rsn_image f) {
 	for(z = 0; z < L; z++)
 		for(y = 0; y < M; y++)
 			for(x = 0; x < N; x++)
-				F[z*M*N+y*N+x] = rsn_copysign((rsn_pow(M_E,rsn_fabs((f[y][x*L+z]-127.5)/c)) - 1),f[y][x*L+z]-127.5);
+				F[z*M*N+y*N+x] = rsn_copysign((rsn_pow(RSN_E,rsn_fabs((f[y][x*L+z]-127.5)/c)) - 1),f[y][x*L+z]-127.5);
 
 	return F;
 }

@@ -1,8 +1,8 @@
 ## BUILD CONFIGURATION ##
 HAS_FFTW ?= 1
 HAS_KISS ?= 1
-# Valid options are SINGLE, DOUBLE, or LONG
 PRECISION ?= DOUBLE
+# Valid options are SINGLE, DOUBLE, LONG, or QUAD (requires libquadmath)
 THREADED ?= 0
 
 ## SYSTEM SETTINGS ##
@@ -36,6 +36,11 @@ _LDFLAGS = -lm
 LDPROJ = -L. -l$(PROJECT)
 EXELDFLAGS = -L$(incl_libdir) -lpng -ljpeg
 
+ifeq ($(PRECISION),QUAD)
+	_LDFLAGS += -L$(incl_libdir) -lquadmath
+	STATICLDPROJ = $(incl_libdir)/libquadmath.a
+endif
+
 ifeq ($(HAS_KISS),1)
 	KISS = $(patsubst %.c,%.o,$(wildcard kissfft/*.c))
 endif
@@ -44,6 +49,8 @@ ifeq ($(HAS_FFTW),1)
 		PSUF=f
 	else ifeq ($(PRECISION),LONG)
 		PSUF=l
+	else ifeq ($(PRECISION),QUAD)
+		PSUF=q
 	endif
 	_LDFLAGS += -L$(incl_libdir) -lfftw3$(PSUF)
 	STATICLDPROJ = $(incl_libdir)/libfftw3$(PSUF).a
